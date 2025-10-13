@@ -6,6 +6,44 @@ from streamlit_lottie import st_lottie
 # --- PAGE CONFIGURATION ---
 st.set_page_config(layout="wide", page_title="Portfolio | Rafael Verdi de Freitas")
 
+# --- HTML & JS for Vanta.js Background ---
+# This block injects the necessary scripts and styles for the animated background.
+vanta_html = """
+<style>
+#vanta-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+</style>
+<div id="vanta-bg"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    VANTA.NET({
+      el: "#vanta-bg",
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      color: 0x4caf50,
+      backgroundColor: 0x121212,
+      points: 12.00,
+      maxDistance: 25.00,
+      spacing: 18.00
+    });
+});
+</script>
+"""
+st.markdown(vanta_html, unsafe_allow_html=True)
+
 # --- Function to load local CSS file ---
 def local_css(file_name):
     with open(file_name) as f:
@@ -13,48 +51,35 @@ def local_css(file_name):
 
 # --- Function to load Lottie animation from URL ---
 def load_lottieurl(url: str):
-    # The st_lottie function can directly handle URLs.
     return url
 
 # --- ASSETS ---
-local_css("style.css") # Load the custom CSS
+local_css("style.css")
 lottie_animation_url = "https://assets9.lottiefiles.com/packages/lf20_v9riyrep.json"
 
 # --- PDF CV for Download ---
-# Make sure you have a file named 'CV.pdf' in the same folder
 with open("CV.pdf", "rb") as pdf_file:
     PDFbyte = pdf_file.read()
 
 # --- HEADER & INTRO ---
 with st.container():
-    # col1, col2 = st.columns((3, 1))
-    # with col1:
-    st.title("Rafael Verdi de Freitas")
-    st.subheader("Data Scientist | Machine Learning Engineer | Fraud Prevention Specialist")
-    # --- Social Links with improved styling ---
-    st.markdown("""
-    <a href="https://www.linkedin.com/in/rafael-verdi/" target="_blank" style="text-decoration: none; color: #4CAF50; margin-right: 15px;">LinkedIn</a> 
-    <a href="https://github.com/rafaelvverdi" target="_blank" style="text-decoration: none; color: #4CAF50;">GitHub</a>
-    """, unsafe_allow_html=True)
-    st.write(" ") # Adding a little space
-    st.download_button(
-        label="📄 Download CV",
-        data=PDFbyte,
-        file_name="RafaelVerdiFreitas_CV.pdf",
-        mime="application/octet-stream",
-    )
-    # with col2:
-    #     # Make sure you have a file named 'profile_pic.png'
-    #     st.image("profile_pic.png", width=230)
+    col1, col2 = st.columns((3, 1))
+    with col1:
+        st.title("Rafael Verdi de Freitas")
+        st.subheader("Data Scientist | Machine Learning Engineer | Fraud Prevention Specialist")
+        st.markdown("""
+        <a href="https://www.linkedin.com/in/rafael-verdi-de-freitas/" target="_blank" style="text-decoration: none; color: #4CAF50; margin-right: 15px;">LinkedIn</a> 
+        <a href="https://github.com/RVerdiF" target="_blank" style="text-decoration: none; color: #4CAF50;">GitHub</a>
+        """, unsafe_allow_html=True)
+        st.write(" ") 
+        st.download_button(label="📄 Download CV", data=PDFbyte, file_name="RafaelVerdiFreitas_CV.pdf", mime="application/octet-stream")
+    with col2:
+        st.image("1594050442709.jpeg", width=230)
 
 st.markdown("---")
 
 # --- TAB CREATION ---
-tab1, tab2, tab3 = st.tabs([
-    "Summary & Skills", 
-    "Professional Experience", 
-    "Education & Qualifications"
-])
+tab1, tab2, tab3 = st.tabs(["Summary & Skills", "Professional Experience", "Education & Qualifications"])
 
 # --- TAB 1: SUMMARY & SKILLS ---
 with tab1:
@@ -69,8 +94,6 @@ with tab1:
 
     st.markdown("---")
     st.header("Technical Skills")
-
-    # --- Interactive Skills Chart ---
     skills_data = {
         'Skill': [
             'Python', 'SQL', 'Power BI', 'Predictive Modeling', 
@@ -84,15 +107,12 @@ with tab1:
         ]
     }
     df_skills = pd.DataFrame(skills_data)
-    
-    fig = px.bar(df_skills.sort_values(by="Proficiency"), x='Proficiency', y='Skill', orientation='h', title='Skill Proficiency', color='Proficiency',
-                 color_continuous_scale='Greens', text='Proficiency')
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#E0E0E0'),
-                      xaxis=dict(showgrid=False, range=[0, 100]), yaxis=dict(showgrid=False), title_x=0.5)
+    fig = px.bar(df_skills.sort_values(by="Proficiency"), x='Proficiency', y='Skill', orientation='h', title='Skill Proficiency', color='Proficiency', color_continuous_scale='Greens', text='Proficiency')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#E0E0E0'), xaxis=dict(showgrid=False, range=[0, 100]), yaxis=dict(showgrid=False), title_x=0.5)
     fig.update_traces(texttemplate='%{text}%', textposition='inside')
     st.plotly_chart(fig, use_container_width=True)
 
-# --- TAB 2: PROFESSIONAL EXPERIENCE ---
+# --- TAB 2: PROFESSIONAL EXPERIENCE (ALL CONTENT RESTORED) ---
 with tab2:
     st.header("Professional Experience")
     st.markdown("""
@@ -103,6 +123,7 @@ with tab2:
             <li>Engineer and orchestrate autonomous AI agents, designing and managing robust data and MLOps pipelines to automate complex workflows and enhance scalability.</li>
             <li>Develop and implement advanced algorithms for transactional fraud prevention, ensuring the integrity and security of payment systems.</li>
             <li>Build and train predictive fraud models using machine learning and AI, enabling proactive responses to emerging threats.</li>
+            <li>Lead autonomous project management using DevOps practices, accelerating solution delivery and improving system reliability.</li>
         </ul>
     </div>
     <div class="card">
@@ -110,13 +131,29 @@ with tab2:
         <p class="company-name">Banco Mercantil do Brasil | January 2023 – November 2024</p>
         <ul>
             <li>Monitored and analyzed key performance indicators (KPIs) to ensure the quality and effectiveness of the department's services.</li>
-            <li>Developed and maintained a transaction monitoring system using Python and Power BI dashboards.</li>
+            <li>Developed and maintained a transaction monitoring system using Python and Power BI dashboards, applying statistical methods to assess operational risk and optimize security.</li>
+            <li>Automated key departmental processes, significantly improving workflow efficiency and team productivity.</li>
             <li>Managed data governance by creating and maintaining tables, views, and procedures in Snowflake using Python, dbt, and SQL.</li>
+        </ul>
+    </div>
+    <div class="card">
+        <p class="job-title">Data Analysis & Fraud Prevention Assistant</p>
+        <p class="company-name">Banco Mercantil do Brasil | December 2021 – January 2023</p>
+        <ul>
+            <li>Provided critical support to the data analysis and fraud prevention teams, contributing to daily operations and strategic projects.</li>
+            <li>Assisted in data preparation, cleaning, and preliminary analysis to support senior analysts and data scientists.</li>
+        </ul>
+    </div>
+    <div class="card">
+        <p class="job-title">Intern</p>
+        <p class="company-name">Banco Mercantil do Brasil | November 2019 – November 2021</p>
+        <ul>
+            <li>Gained foundational experience in the financial industry, supporting various teams with data-related tasks and process documentation.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
 
-# --- TAB 3: EDUCATION & QUALIFICATIONS ---
+# --- TAB 3: EDUCATION & QUALIFICATIONS (ALL CONTENT RESTORED) ---
 with tab3:
     st.header("Education")
     st.markdown("""
@@ -124,7 +161,9 @@ with tab3:
         <p class="degree-title">Postgraduate Specialization, Machine Learning Engineering</p>
         <p class="university-name">FIAP | Expected February 2025</p>
         <ul>
-            <li><strong>Advanced Modeling:</strong> In-depth study of ML and Deep Learning models, including supervised, unsupervised, and reinforcement learning.</li>
+            <li><strong>Advanced Modeling:</strong> In-depth study of Classic Machine Learning and Deep Learning models, including supervised, unsupervised, and reinforcement learning.</li>
+            <li><strong>Cloud & Big Data Ecosystems:</strong> Hands-on implementation of scalable ML solutions in cloud environments (AWS), leveraging platforms like Hadoop and Spark.</li>
+            <li><strong>Specialized AI Applications:</strong> Covers advanced techniques in NLP, Computer Vision, and Generative AI models (GPT-4, Stable Diffusion).</li>
             <li><strong>MLOps & Productionalization:</strong> Emphasizes end-to-end MLOps practices, including automated data pipelines, containerization with Docker, and CI/CD for model deployment.</li>
         </ul>
     </div>
@@ -134,6 +173,13 @@ with tab3:
         <ul>
             <li><strong>Data-Driven Strategy:</strong> Provided knowledge of data-driven culture, data governance frameworks (LGPD/GDPR), and Agile Project Management.</li>
             <li><strong>Advanced Analytics & BI:</strong> Developed skills in advanced analytics using Python, including ETL/ELT processes and dimensional modeling for Data Warehouses.</li>
+        </ul>
+    </div>
+    <div class="card">
+        <p class="degree-title">Bachelor of Business Administration</p>
+        <p class="university-name">PUC Minas | February 2018 – December 2021</p>
+        <ul>
+            <li>Provided a strong foundation in strategic management, finance, marketing, and organizational processes.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -148,6 +194,9 @@ with tab3:
             <li>Data Analysis and Power BI (2023)</li>
             <li>Data Analysis with Python (2022)</li>
             <li>Certified Yellow Belt, Lean Six Sigma (2022)</li>
+            <li>Introduction to Data Science 2.0 (2020)</li>
+            <li>Certified White Belt, Lean Six Sigma (2020)</li>
+            <li>Transforming Ideas into Business (2015)</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)

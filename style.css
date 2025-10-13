@@ -4,8 +4,12 @@
 /* --- Global Styles --- */
 body {
     font-family: 'Roboto', sans-serif;
-    color: #E0E0E0; /* Light grey text for better readability on dark background */
-    background-color: #121212; /* Dark background */
+    color: #E0E0E0; /* Light grey text */
+}
+
+/* Make the main Streamlit container transparent to see the Vanta background */
+.main {
+    background-color: transparent;
 }
 
 /* --- Main Streamlit App Container --- */
@@ -16,15 +20,16 @@ body {
     padding-right: 5rem;
 }
 
-/* --- Custom Card Styling --- */
+/* --- Custom Card Styling (to float above the background) --- */
 .card {
-    background-color: #1E1E1E; /* Slightly lighter dark shade for cards */
+    background-color: rgba(30, 30, 30, 0.9); /* Semi-transparent dark shade for cards */
     border-radius: 10px;
     padding: 25px;
     margin-bottom: 20px;
     border: 1px solid #333;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     transition: transform 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(5px); /* Frosted glass effect */
 }
 
 .card:hover {
@@ -40,7 +45,7 @@ h1, h2, h3 {
 .job-title, .degree-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #4CAF50; /* A modern green accent color */
+    color: #4CAF50; /* Modern green accent color */
     margin-bottom: 5px;
 }
 
@@ -52,34 +57,20 @@ h1, h2, h3 {
 }
 
 /* --- List Styling --- */
-ul {
-    list-style-position: inside;
-    padding-left: 0;
-}
+ul { list-style-position: inside; padding-left: 0; }
+li { margin-bottom: 10px; line-height: 1.6; }
 
-li {
-    margin-bottom: 10px;
-    line-height: 1.6;
-}
-
-/* --- Header & Tab Styling --- */
-.stTabs [data-baseweb="tab-list"] {
-    gap: 24px;
-}
-
+/* --- Tab Styling --- */
+.stTabs [data-baseweb="tab-list"] { gap: 24px; }
 .stTabs [data-baseweb="tab"] {
     height: 50px;
     white-space: pre-wrap;
-    background-color: transparent;
+    background-color: rgba(30, 30, 30, 0.7);
     border-radius: 4px;
     padding: 10px 15px;
     transition: background-color 0.2s;
 }
-
-.stTabs [data-baseweb="tab"]:hover {
-    background-color: #333;
-}
-
+.stTabs [data-baseweb="tab"]:hover { background-color: #333; }
 .stTabs [data-baseweb="tab"][aria-selected="true"] {
     background-color: #4CAF50;
     color: #121212;
