@@ -2,8 +2,6 @@
 
 *.csv
 
-*.pdf
-
 raw/
 
 *.db
