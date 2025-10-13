@@ -12,13 +12,15 @@ body {
 .main .block-container {
     padding-top: 2rem;
     padding-bottom: 2rem;
+    padding-left: 5rem;
+    padding-right: 5rem;
 }
 
 /* --- Custom Card Styling --- */
 .card {
     background-color: #1E1E1E; /* Slightly lighter dark shade for cards */
     border-radius: 10px;
-    padding: 20px;
+    padding: 25px;
     margin-bottom: 20px;
     border: 1px solid #333;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
@@ -35,7 +37,6 @@ h1, h2, h3 {
     color: #FFFFFF; /* White for main titles */
 }
 
-/* Specific styling for job titles and degree names */
 .job-title, .degree-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -50,7 +51,7 @@ h1, h2, h3 {
     margin-bottom: 10px;
 }
 
-/* --- List Styling for job descriptions and certifications --- */
+/* --- List Styling --- */
 ul {
     list-style-position: inside;
     padding-left: 0;
@@ -72,6 +73,7 @@ li {
     background-color: transparent;
     border-radius: 4px;
     padding: 10px 15px;
+    transition: background-color 0.2s;
 }
 
 .stTabs [data-baseweb="tab"]:hover {
@@ -82,4 +84,18 @@ li {
     background-color: #4CAF50;
     color: #121212;
     font-weight: bold;
+}
+
+/* --- Download Button Styling --- */
+.stDownloadButton > button {
+    background-color: #4CAF50;
+    color: #121212;
+    border-radius: 5px;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+.stDownloadButton > button:hover {
+    background-color: #45a049;
+    color: #121212;
 }

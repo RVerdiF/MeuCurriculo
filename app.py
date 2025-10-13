@@ -1,4 +1,7 @@
 import streamlit as st
+import plotly.express as px
+import pandas as pd
+from streamlit_lottie import st_lottie
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(layout="wide", page_title="Portfolio | Rafael Verdi de Freitas")
@@ -8,12 +11,42 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# Load the custom CSS
-local_css("style.css")
+# --- Function to load Lottie animation from URL ---
+def load_lottieurl(url: str):
+    # The st_lottie function can directly handle URLs.
+    return url
 
-# --- HEADER ---
-st.title("Rafael Verdi de Freitas")
-st.write("Belo Horizonte, MG, Brazil | +55 31 998731255 | rafaelverdifreitas@hotmail.com")
+# --- ASSETS ---
+local_css("style.css") # Load the custom CSS
+lottie_animation_url = "https://assets9.lottiefiles.com/packages/lf20_v9riyrep.json"
+
+# --- PDF CV for Download ---
+# Make sure you have a file named 'CV.pdf' in the same folder
+with open("CV.pdf", "rb") as pdf_file:
+    PDFbyte = pdf_file.read()
+
+# --- HEADER & INTRO ---
+with st.container():
+    # col1, col2 = st.columns((3, 1))
+    # with col1:
+    st.title("Rafael Verdi de Freitas")
+    st.subheader("Data Scientist | Machine Learning Engineer | Fraud Prevention Specialist")
+    # --- Social Links with improved styling ---
+    st.markdown("""
+    <a href="https://www.linkedin.com/in/rafael-verdi/" target="_blank" style="text-decoration: none; color: #4CAF50; margin-right: 15px;">LinkedIn</a> 
+    <a href="https://github.com/rafaelvverdi" target="_blank" style="text-decoration: none; color: #4CAF50;">GitHub</a>
+    """, unsafe_allow_html=True)
+    st.write(" ") # Adding a little space
+    st.download_button(
+        label="📄 Download CV",
+        data=PDFbyte,
+        file_name="RafaelVerdiFreitas_CV.pdf",
+        mime="application/octet-stream",
+    )
+    # with col2:
+    #     # Make sure you have a file named 'profile_pic.png'
+    #     st.image("profile_pic.png", width=230)
+
 st.markdown("---")
 
 # --- TAB CREATION ---
@@ -25,35 +58,39 @@ tab1, tab2, tab3 = st.tabs([
 
 # --- TAB 1: SUMMARY & SKILLS ---
 with tab1:
-    st.header("Professional Summary")
-    st.write("""
-    Results-driven Data Scientist with over 5 years of experience in the financial industry,
-    specializing in Strategic Data Management, Fraud Prevention, and Machine Learning. Proven
-    track record of developing advanced fraud detection algorithms, building predictive models, and
-    enhancing operational efficiency through automation and DevOps practices. A collaborative team
-    player with a strong background in Business Administration, skilled in translating complex data
-    into actionable business insights and driving organizational success.
-    """)
+    col1, col2 = st.columns((2, 1))
+    with col1:
+        st.header("Professional Summary")
+        st.write("""
+        Results-driven Data Scientist with over 5 years of experience in the financial industry, specializing in Strategic Data Management, Fraud Prevention, and Machine Learning. Proven track record of developing advanced fraud detection algorithms, building predictive models, and enhancing operational efficiency through automation and DevOps practices. A collaborative team player with a strong background in Business Administration, skilled in translating complex data into actionable business insights and driving organizational success.
+        """)
+    with col2:
+        st_lottie(load_lottieurl(lottie_animation_url), speed=1, height=250, key="initial")
+
     st.markdown("---")
     st.header("Technical Skills")
-    st.markdown("""
-    <div class="card">
-        <p class="job-title">Programming & Databases</p>
-        <p>Python (5 years), SQL (5 years)</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Data & Analytics Tools</p>
-        <p>Power BI (5 years), ETL (5 years), Snowflake, dbt, Microsoft Office Suite (5 years)</p>
-    </div>
-    <div class="card">
-        <p class="job-title">ML & Data Science</p>
-        <p>Machine Learning (Supervised & Unsupervised), Deep Learning, Predictive Modeling, NLP, MLOps, Data Governance</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Platforms & Methodologies</p>
-        <p>DevOps, CI/CD, Agile (Scrum, Kanban), Docker, AWS, Big Data (Hadoop, Spark, Kafka)</p>
-    </div>
-    """, unsafe_allow_html=True)
+
+    # --- Interactive Skills Chart ---
+    skills_data = {
+        'Skill': [
+            'Python', 'SQL', 'Power BI', 'Predictive Modeling', 
+            'Snowflake', 'DBT', 'ETL Processes', 'Deep Learning', 
+            'Apache Spark', 'Docker', 'CI/CD', 'AWS (S3, SageMaker)', 'Kubernetes'
+        ],
+        'Proficiency': [
+            95, 90, 90, 85, 
+            85, 85, 85, 80, 
+            80, 75, 75, 70, 70
+        ]
+    }
+    df_skills = pd.DataFrame(skills_data)
+    
+    fig = px.bar(df_skills.sort_values(by="Proficiency"), x='Proficiency', y='Skill', orientation='h', title='Skill Proficiency', color='Proficiency',
+                 color_continuous_scale='Greens', text='Proficiency')
+    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#E0E0E0'),
+                      xaxis=dict(showgrid=False, range=[0, 100]), yaxis=dict(showgrid=False), title_x=0.5)
+    fig.update_traces(texttemplate='%{text}%', textposition='inside')
+    st.plotly_chart(fig, use_container_width=True)
 
 # --- TAB 2: PROFESSIONAL EXPERIENCE ---
 with tab2:
@@ -66,7 +103,6 @@ with tab2:
             <li>Engineer and orchestrate autonomous AI agents, designing and managing robust data and MLOps pipelines to automate complex workflows and enhance scalability.</li>
             <li>Develop and implement advanced algorithms for transactional fraud prevention, ensuring the integrity and security of payment systems.</li>
             <li>Build and train predictive fraud models using machine learning and AI, enabling proactive responses to emerging threats.</li>
-            <li>Lead autonomous project management using DevOps practices, accelerating solution delivery and improving system reliability.</li>
         </ul>
     </div>
     <div class="card">
@@ -74,16 +110,8 @@ with tab2:
         <p class="company-name">Banco Mercantil do Brasil | January 2023 – November 2024</p>
         <ul>
             <li>Monitored and analyzed key performance indicators (KPIs) to ensure the quality and effectiveness of the department's services.</li>
-            <li>Developed and maintained a transaction monitoring system using Python and Power BI dashboards, applying statistical methods to assess operational risk and optimize security.</li>
+            <li>Developed and maintained a transaction monitoring system using Python and Power BI dashboards.</li>
             <li>Managed data governance by creating and maintaining tables, views, and procedures in Snowflake using Python, dbt, and SQL.</li>
-        </ul>
-    </div>
-     <div class="card">
-        <p class="job-title">Data Analysis & Fraud Prevention Assistant</p>
-        <p class="company-name">Banco Mercantil do Brasil | December 2021 – January 2023</p>
-        <ul>
-            <li>Provided critical support to the data analysis and fraud prevention teams, contributing to daily operations and strategic projects.</li>
-            <li>Assisted in data preparation, cleaning, and preliminary analysis to support senior analysts and data scientists.</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
@@ -96,9 +124,7 @@ with tab3:
         <p class="degree-title">Postgraduate Specialization, Machine Learning Engineering</p>
         <p class="university-name">FIAP | Expected February 2025</p>
         <ul>
-            <li><strong>Advanced Modeling:</strong> In-depth study of classic Machine Learning and Deep Learning models, including supervised, unsupervised, and reinforcement learning.</li>
-            <li><strong>Cloud & Big Data Ecosystems:</strong> Hands-on implementation of scalable ML solutions in cloud environments (AWS), leveraging platforms like Hadoop and Spark.</li>
-            <li><strong>Specialized AI Applications:</strong> Covers advanced techniques in NLP, Computer Vision, and Generative AI models (GPT-4, Stable Diffusion).</li>
+            <li><strong>Advanced Modeling:</strong> In-depth study of ML and Deep Learning models, including supervised, unsupervised, and reinforcement learning.</li>
             <li><strong>MLOps & Productionalization:</strong> Emphasizes end-to-end MLOps practices, including automated data pipelines, containerization with Docker, and CI/CD for model deployment.</li>
         </ul>
     </div>
@@ -113,7 +139,6 @@ with tab3:
     """, unsafe_allow_html=True)
     
     st.markdown("---")
-    
     st.header("Certifications & Licenses")
     st.markdown("""
     <div class="card">
@@ -124,15 +149,5 @@ with tab3:
             <li>Data Analysis with Python (2022)</li>
             <li>Certified Yellow Belt, Lean Six Sigma (2022)</li>
         </ul>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    
-    st.header("Languages")
-    st.markdown("""
-    <div class="card">
-        <p><strong>Portuguese:</strong> Native</p>
-        <p><strong>English:</strong> Advanced</p>
     </div>
     """, unsafe_allow_html=True)
