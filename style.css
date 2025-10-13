@@ -1,0 +1,85 @@
+/* --- Import Google Font --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+/* --- Global Styles --- */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #E0E0E0; /* Light grey text for better readability on dark background */
+    background-color: #121212; /* Dark background */
+}
+
+/* --- Main Streamlit App Container --- */
+.main .block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* --- Custom Card Styling --- */
+.card {
+    background-color: #1E1E1E; /* Slightly lighter dark shade for cards */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+
+/* --- Typography Styling --- */
+h1, h2, h3 {
+    color: #FFFFFF; /* White for main titles */
+}
+
+/* Specific styling for job titles and degree names */
+.job-title, .degree-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4CAF50; /* A modern green accent color */
+    margin-bottom: 5px;
+}
+
+.company-name, .university-name {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #B0B0B0; /* Softer grey for sub-titles */
+    margin-bottom: 10px;
+}
+
+/* --- List Styling for job descriptions and certifications --- */
+ul {
+    list-style-position: inside;
+    padding-left: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+/* --- Header & Tab Styling --- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 24px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 50px;
+    white-space: pre-wrap;
+    background-color: transparent;
+    border-radius: 4px;
+    padding: 10px 15px;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: #333;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background-color: #4CAF50;
+    color: #121212;
+    font-weight: bold;
+}
