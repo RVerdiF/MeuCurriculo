@@ -21,24 +21,30 @@ vanta_html = """
 </style>
 <div id="vanta-bg"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
 <script>
+console.log("Vanta script starting");
 document.addEventListener("DOMContentLoaded", function() {
-    VANTA.NET({
-      el: "#vanta-bg",
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 200.00,
-      minWidth: 200.00,
-      scale: 1.00,
-      scaleMobile: 1.00,
-      color: 0x4caf50,
-      backgroundColor: 0x121212,
-      points: 12.00,
-      maxDistance: 25.00,
-      spacing: 18.00
-    });
+    console.log("DOMContentLoaded event fired");
+    try {
+        VANTA.BIRDS({
+          el: "#vanta-bg",
+          mouseControls: true,
+          touchControls: true,
+          gyroControls: false,
+          minHeight: 200.00,
+          minWidth: 200.00,
+          scale: 1.00,
+          scaleMobile: 1.00,
+          backgroundColor: 0x121212,
+          color1: 0x4caf50,
+          color2: 0x4caf50,
+          colorMode: "lerp"
+        });
+        console.log("Vanta script executed successfully");
+    } catch (e) {
+        console.error("Vanta script error:", e);
+    }
 });
 </script>
 """
@@ -96,21 +102,26 @@ with tab1:
     st.header("Technical Skills")
     skills_data = {
         'Skill': [
-            'Python', 'SQL', 'Power BI', 'Predictive Modeling', 
-            'Snowflake', 'DBT', 'ETL Processes', 'Deep Learning', 
-            'Apache Spark', 'Docker', 'CI/CD', 'AWS (S3, SageMaker)', 'Kubernetes'
+            'Python', 'SQL', 'Power BI', 'Predictive Modeling',
+            'Snowflake', 'DBT', 'ETL Processes', 'Deep Learning',
+            'Apache Spark', 'Docker', 'CI/CD', 'AWS (S3, SageMaker)', 'Kubernetes',
+            'Kafka', 'Hadoop', 'NLP', 'MLOps', 'Data Governance', 'Agile', 'Generative AI'
         ],
-        'Proficiency': [
-            95, 90, 90, 85, 
-            85, 85, 85, 80, 
-            80, 75, 75, 70, 70
+        'Years': [
+            5, 5, 5, 5,
+            5, 5, 5, 3,
+            2, 2, 3, 3, 1,
+            2, 2, 3, 3, 4, 5, 1
         ]
     }
-    df_skills = pd.DataFrame(skills_data)
-    fig = px.bar(df_skills.sort_values(by="Proficiency"), x='Proficiency', y='Skill', orientation='h', title='Skill Proficiency', color='Proficiency', color_continuous_scale='Greens', text='Proficiency')
-    fig.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font=dict(color='#E0E0E0'), xaxis=dict(showgrid=False, range=[0, 100]), yaxis=dict(showgrid=False), title_x=0.5)
-    fig.update_traces(texttemplate='%{text}%', textposition='inside')
-    st.plotly_chart(fig, use_container_width=True)
+    df_skills = pd.DataFrame(skills_data).sort_values(by="Years", ascending=False)
+
+    skills_html = "<div class='skills-container'>"
+    for index, row in df_skills.iterrows():
+        skills_html += f"<div class='skill-card'><div class='skill-name'>{row['Skill']}</div><div class='skill-years'>{row['Years']} years</div></div>"
+    skills_html += "</div>"
+
+    st.markdown(skills_html, unsafe_allow_html=True)
 
 # --- TAB 2: PROFESSIONAL EXPERIENCE (ALL CONTENT RESTORED) ---
 with tab2:
