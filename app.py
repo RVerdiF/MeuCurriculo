@@ -615,6 +615,41 @@ This application uses the PaySim dataset from Kaggle. You can find more informat
         with st.expander("See details (README)"):
             st.markdown(project['readme'], unsafe_allow_html=True)
         st.markdown("---")
+    
+    st.markdown("##") # Add some space
+    st.subheader("Key Professional Projects")
+    st.markdown("""
+    <div class="card">
+        <p class="job-title">Autonomous AI Agents & MLOps Pipelines</p>
+        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
+        <p>Designed, engineered, and orchestrated autonomous AI agents and robust MLOps pipelines to automate complex data workflows, enhancing system scalability and reliability.</p>
+        <p><strong>Key Technologies:</strong> Python, AI/ML, MLOps, CI/CD, Docker, AWS</p>
+    </div>
+    <div class="card">
+        <p class="job-title">Advanced Fraud Detection Algorithms</p>
+        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
+        <p>Developed and implemented advanced algorithms for real-time transactional fraud prevention, significantly improving the integrity and security of payment systems.</p>
+        <p><strong>Key Technologies:</strong> Python, Machine Learning, Predictive Modeling, Big Data (Spark/Kafka)</p>
+    </div>
+    <div class="card">
+        <p class="job-title">Predictive Fraud Modeling</p>
+        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
+        <p>Built and trained sophisticated predictive fraud models using Machine Learning and AI, enabling proactive responses to emerging and evolving security threats.</p>
+        <p><strong>Key Technologies:</strong> Python, Scikit-learn, Deep Learning (TensorFlow/Keras), SQL</p>
+    </div>
+    <div class="card">
+        <p class="job-title">Transaction Monitoring System</p>
+        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Analyst.</p>
+        <p>Created and maintained a comprehensive transaction monitoring system. This involved developing a Python-based backend and dynamic Power BI dashboards to assess operational risk and optimize security.</p>
+        <p><strong>Key Technologies:</strong> Python, Power BI, SQL, Statistical Analysis</p>
+    </div>
+    <div class="card">
+        <p class="job-title">Data Governance & Automation in Snowflake</p>
+        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Analyst.</p>
+        <p>Led data governance initiatives by creating and managing tables, views, and stored procedures in Snowflake. Automated key departmental processes, improving workflow efficiency and team productivity.</p>
+        <p><strong>Key Technologies:</strong> Snowflake, Python, dbt, SQL, Data Governance</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # --- TAB 3: PROFESSIONAL EXPERIENCE (ALL CONTENT RESTORED) ---
