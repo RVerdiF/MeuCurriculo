@@ -122,3 +122,20 @@ li { margin-bottom: 10px; line-height: 1.6; }
     color: #B0B0B0;
     font-size: 0.9rem;
 }
+
+/* --- Responsive Design for Mobile --- */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px; /* Reduce gap between tabs */
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: auto; /* Allow height to adjust to content */
+        padding: 10px; /* Adjust padding */
+    }
+}
