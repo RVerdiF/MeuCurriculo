@@ -145,21 +145,21 @@ with tab2:
     projects_data = [
         {
             "url": "https://github.com/RVerdiF/api-embrapa-tech-challenge",
-            "title": "API Embrapa - Vitivinicultura",
+            "title": "Embrapa API - Viticulture",
             "readme": '''
-API para extração e consulta de informações referentes à vitivinicultura, baseada em dados da Embrapa.
+API for extracting and querying information related to viticulture, based on data from Embrapa.
 
-**Descrição**: API RESTful desenvolvida com FastAPI que fornece acesso a dados sobre vitivinicultura, extraídos do portal Vitibrasil da Embrapa.
+**Description**: A RESTful API developed with FastAPI that provides access to data on viticulture, extracted from Embrapa\'s Vitibrasil portal.
 
-**Categorias de Dados**:
-- Produção, Comercialização, Processamento, Exportação, Importação.
+**Data Categories**:
+- Production, Commercialization, Processing, Export, Import.
 
-**Tecnologias**:
+**Technologies**:
 - FastAPI, Docker, Pandas, Pydantic.
 
-**Uso da API**:
-A API está disponível em: `https://api-embrapa-tech-challenge.onrender.com/`
-Documentação Swagger: `https://api-embrapa-tech-challenge.onrender.com/docs`
+**API Usage**:
+The API is available at: `https://api-embrapa-tech-challenge.onrender.com/`
+Swagger Documentation: `https://api-embrapa-tech-challenge.onrender.com/docs`
 ''',
             "deployment_url": None
         },
@@ -167,22 +167,22 @@ Documentação Swagger: `https://api-embrapa-tech-challenge.onrender.com/docs`
             "url": "https://github.com/RVerdiF/TechChallenge3",
             "title": "BTC Prediction Project",
             "readme": '''
-Projeto de previsão de preço do Bitcoin usando Machine Learning com arquitetura modular e dashboard interativo.
+Bitcoin price prediction project using Machine Learning with a modular architecture and interactive dashboard.
 
-**Funcionalidades**:
-- Coleta de dados do Yahoo Finance com atualização automática.
-- Engenharia de features com indicadores técnicos (SMA, RSI, MACD, etc.).
-- Modelo de Machine Learning com LightGBM Classifier.
-- Dashboard web com autenticação de usuários, gráfico interativo, previsões e treinamento customizado.
+**Features**:
+- Data collection from Yahoo Finance with automatic updates.
+- Feature engineering with technical indicators (SMA, RSI, MACD, etc.).
+- Machine Learning model with LightGBM Classifier.
+- Web dashboard with user authentication, interactive chart, predictions, and custom training.
 
-**Arquitetura Modular**:
-- `ApiHandler`: Coleta de dados.
-- `AuthHandler`: Autenticação de usuários.
-- `DataHandler`: Gerenciamento de banco de dados de preços e modelos.
-- `ModelHandler`: Treinamento e previsão.
-- `main.py`: Interface com Streamlit.
+**Modular Architecture**:
+- `ApiHandler`: Data collection.
+- `AuthHandler`: User authentication.
+- `DataHandler`: Management of price and model database.
+- `ModelHandler`: Training and prediction.
+- `main.py`: Interface with Streamlit.
 
-**Tecnologias**:
+**Technologies**:
 - Streamlit, Pandas, yfinance, scikit-learn, lightgbm, plotly.
 ''',
             "deployment_url": "https://techchallenge3rafaelfreitas.streamlit.app/"
@@ -194,15 +194,15 @@ Projeto de previsão de preço do Bitcoin usando Machine Learning com arquitetur
 A Streamlit application for exploring and analyzing the PaySim synthetic financial dataset.
 
 **Features**:
-- Backend de alta performance para lidar com o grande dataset PaySim.
-- Análise de estatísticas gerais, distribuição de transações, performance do `isFlaggedFraud`, e identificação de "contas mula".
+- High-performance backend to handle the large PaySim dataset.
+- Analysis of general statistics, transaction distribution, `isFlaggedFraud` performance, and identification of "mule accounts".
 
-**Arquitetura e Design**:
-- Backend centrado em SQL (SQLite) para evitar carregar todo o dataset em memória.
-- Execução paralela de queries para uma experiência de usuário mais rápida.
-- Agregação de alta performance com Polars para agregações complexas.
+**Architecture and Design**:
+- SQL-centric backend (SQLite) to avoid loading the entire dataset into memory.
+- Parallel execution of queries for a faster user experience.
+- High-performance aggregation with Polars for complex aggregations.
 
-**Tecnologias**:
+**Technologies**:
 - Streamlit, Polars, SQLite, Pandas.
 ''',
             "deployment_url": "https://rverdif-paysimviz-app-olphe6.streamlit.app/"
