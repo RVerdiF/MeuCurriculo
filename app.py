@@ -7,7 +7,7 @@ import streamlit as st
 BASE_DIR = Path(__file__).resolve().parent
 
 st.set_page_config(
-    page_title="Rafael Verdi de Freitas | Data Engineer & Analytics Architect",
+    page_title="Rafael Verdi de Freitas | Data & Analytics Engineer",
     page_icon="📊",
     layout="wide",
 )
@@ -59,7 +59,7 @@ with st.container():
     details_column, photo_column = st.columns((3, 1))
     with details_column:
         st.title("Rafael Verdi de Freitas")
-        st.subheader("Data Engineer & Analytics Architect")
+        st.subheader("Data & Analytics Engineer")
         st.caption("Belo Horizonte, Brazil — Remote (Americas time zones)")
         st.markdown(
             """
@@ -95,7 +95,7 @@ summary_tab, projects_tab, experience_tab, education_tab = st.tabs(
 with summary_tab:
     st.header("Professional Summary")
     st.write(
-        "Data and Analytics Engineer with 6+ years designing cloud data warehouses "
+        "Data & Analytics Engineer with 6+ years designing cloud data warehouses "
         "and golden-table architectures for global banking institutions and "
         "digital-asset platforms. Built data and compliance infrastructure supporting "
         "complex financial and regulatory environments worldwide. Deep command of the "
@@ -117,6 +117,7 @@ with summary_tab:
             "SQL",
             "AWS",
             "dbt",
+            "Docker",
             "Snowflake",
             "Kubernetes",
             "Hex",
@@ -126,6 +127,10 @@ with summary_tab:
         "Specialties": [
             "Golden Table Architecture",
             "Cloud Data Engineering",
+            "Data Pipelines",
+            "ETL/ELT",
+            "Data Modeling",
+            "Data Quality",
             "Data Democratization",
             "Cross-Border Regulatory Compliance",
             "Process Automation",
@@ -201,19 +206,27 @@ with projects_tab:
         ],
     )
     render_card(
-        "Predictive Fraud Modeling",
-        "Confidential project from a Data Scientist role",
+        "Fraud Analytics & Transaction Monitoring",
+        "Confidential project from Data Scientist and Data Analyst roles",
         [
-            "Built and trained predictive fraud models to enable proactive responses to emerging security threats.",
-            "Key technologies: Python, scikit-learn, TensorFlow/Keras, SQL.",
+            "Built and trained predictive fraud models alongside advanced algorithms for "
+            "transactional fraud prevention.",
+            "Built and maintained institutional transaction-monitoring systems and "
+            "KPI/Power BI dashboards; monitored anomalies across fraud pipelines using "
+            "statistical methods.",
+            "Key technologies: Python, SQL, Power BI.",
         ],
     )
     render_card(
-        "Transaction Monitoring System",
-        "Confidential project from a Data Analyst role",
+        "Production Data Pipelines & Trusted Data Layers",
+        "Confidential project from an Analytics Engineer / Data Consultant role",
         [
-            "Created and maintained a transaction-monitoring system with a Python backend and Power BI dashboards.",
-            "Key technologies: Python, Power BI, SQL, statistical analysis.",
+            "Built production-grade data pipelines and analytics solutions for high-volume "
+            "financial and regulatory workflows.",
+            "Designed reusable data models and curated datasets to improve consistency, "
+            "reliability, and access to trusted business data.",
+            "Automated recurring reporting and operational processes to reduce manual effort "
+            "and improve delivery reliability.",
         ],
     )
     render_card(
