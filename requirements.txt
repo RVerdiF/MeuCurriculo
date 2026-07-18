@@ -1,4 +1,1 @@
-streamlit
-plotly
-pandas
-streamlit-lottie
+streamlit>=1.59,<2

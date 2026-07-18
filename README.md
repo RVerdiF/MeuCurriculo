@@ -1,35 +1,20 @@
-# MeuCurriculo
+# Rafael Verdi de Freitas — Résumé
 
-This is a personal portfolio website built with Python and Streamlit.
+An accessible professional résumé website built with [Streamlit](https://streamlit.io/).
 
-## Description
+## Run locally
 
-This project is a web application that displays my professional resume in an interactive and visually appealing way. It includes the following sections:
+```bash
+git clone https://github.com/RVerdiF/MeuCurriculo.git
+cd MeuCurriculo
 
-- Professional Summary and Skills
-- Professional Experience
-- Education and Qualifications
-
-## How to run the application
-
-1. Clone this repository:
-```
-git clone https://github.com/rafaelvverdi/MeuCurriculo.git
-```
-2. Install the dependencies:
-```
-pip install -r requirements.txt
-```
-3. Run the application:
-```
-streamlit run app.py
+uv venv .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+.venv/bin/streamlit run app.py
 ```
 
-## Dependencies
+The application entry point is `app.py`. Its downloadable résumé is `CV.pdf`, and its Streamlit theme configuration is in `.streamlit/config.toml`.
 
-The following libraries are required to run the application:
+## Deployment
 
-- streamlit
-- plotly
-- pandas
-- streamlit-lottie
+The repository follows Streamlit's standard deployment layout (`app.py`, `requirements.txt`, and `.streamlit/config.toml`). It contains no versioned CI workflow or provider-specific deployment manifest. To deploy it through Streamlit Community Cloud, connect this repository and select `app.py` as the entry point.

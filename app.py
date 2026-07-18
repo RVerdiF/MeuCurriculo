@@ -1,349 +1,334 @@
+from html import escape
+from pathlib import Path
+
 import streamlit as st
-import plotly.express as px
-import pandas as pd
-from streamlit_lottie import st_lottie
 
-# --- PAGE CONFIGURATION ---
-st.set_page_config(layout="wide", page_title="Portfolio | Rafael Verdi de Freitas")
 
-# --- HTML & JS for Vanta.js Background ---
-# This block injects the necessary scripts and styles for the animated background.
-vanta_html = """
-<style>
-#vanta-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-}
-</style>
-<div id="vanta-bg"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js"></script>
-<script>
-console.log("Vanta script starting");
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("DOMContentLoaded event fired");
-    try {
-        VANTA.BIRDS({
-          el: "#vanta-bg",
-          mouseControls: true,
-          touchControls: true,
-          gyroControls: false,
-          minHeight: 200.00,
-          minWidth: 200.00,
-          scale: 1.00,
-          scaleMobile: 1.00,
-          backgroundColor: 0x121212,
-          color1: 0x4caf50,
-          color2: 0x4caf50,
-          colorMode: "lerp"
-        });
-        console.log("Vanta script executed successfully");
-    } catch (e) {
-        console.error("Vanta script error:", e);
-    }
-});
-</script>
-"""
-st.markdown(vanta_html, unsafe_allow_html=True)
+BASE_DIR = Path(__file__).resolve().parent
 
-# --- Function to load local CSS file ---
-def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+st.set_page_config(
+    page_title="Rafael Verdi de Freitas | Data Engineer & Analytics Architect",
+    page_icon="📊",
+    layout="wide",
+)
 
-# --- Function to load Lottie animation from URL ---
-def load_lottieurl(url: str):
-    return url
 
-# --- ASSETS ---
+def local_css(file_name: str) -> None:
+    """Load a stylesheet stored alongside this application."""
+    css = (BASE_DIR / file_name).read_text(encoding="utf-8")
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+
+def render_card(title: str, subtitle: str, bullets: list[str]) -> None:
+    """Render a consistently styled, semantic résumé card."""
+    items = "".join(f"<li>{escape(bullet)}</li>" for bullet in bullets)
+    list_markup = f"<ul>{items}</ul>" if items else ""
+    st.markdown(
+        f"""
+        <article class="card">
+            <h3 class="card-title">{escape(title)}</h3>
+            <p class="card-subtitle">{escape(subtitle)}</p>
+            {list_markup}
+        </article>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_skill_group(title: str, skills: list[str]) -> None:
+    """Render a labelled, responsive group of skill tags."""
+    tags = "".join(f'<span class="skill-tag">{escape(skill)}</span>' for skill in skills)
+    st.markdown(
+        f"""
+        <section class="skill-group" aria-label="{escape(title)}">
+            <h3>{escape(title)}</h3>
+            <div class="skill-tags">{tags}</div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 local_css("style.css")
-lottie_animation_url = "https://assets9.lottiefiles.com/packages/lf20_v9riyrep.json"
 
-# --- PDF CV for Download ---
-with open("CV.pdf", "rb") as pdf_file:
-    PDFbyte = pdf_file.read()
+with open(BASE_DIR / "CV.pdf", "rb") as pdf_file:
+    resume_pdf = pdf_file.read()
 
-# --- HEADER & INTRO ---
+
 with st.container():
-    col1, col2 = st.columns((3, 1))
-    with col1:
+    details_column, photo_column = st.columns((3, 1))
+    with details_column:
         st.title("Rafael Verdi de Freitas")
-        st.subheader("Data Scientist | Machine Learning Engineer | Fraud Prevention Specialist")
-        st.markdown("""
-        <a href="https://www.linkedin.com/in/rafael-verdi-de-freitas/" target="_blank" style="text-decoration: none; color: #4CAF50; margin-right: 15px;">LinkedIn</a> 
-        <a href="https://github.com/RVerdiF" target="_blank" style="text-decoration: none; color: #4CAF50;">GitHub</a>
-        """, unsafe_allow_html=True)
-        st.write(" ") 
-        st.download_button(label="📄 Download CV", data=PDFbyte, file_name="RafaelVerdiFreitas_CV.pdf", mime="application/octet-stream")
-    with col2:
-        st.image("1594050442709.jpeg", width=230)
+        st.subheader("Data Engineer & Analytics Architect")
+        st.caption("Belo Horizonte, Brazil — Remote (Americas time zones)")
+        st.markdown(
+            """
+            <p class="contact-links">
+                <a href="mailto:rafaelverdifreitas@hotmail.com">Email</a>
+                <span aria-hidden="true">·</span>
+                <a href="https://www.linkedin.com/in/rafael-verdi-de-freitas/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <span aria-hidden="true">·</span>
+                <a href="https://github.com/RVerdiF" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </p>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.download_button(
+            label="Download résumé (PDF)",
+            data=resume_pdf,
+            file_name="Rafael_Verdi_de_Freitas_Resume.pdf",
+            mime="application/pdf",
+        )
+    with photo_column:
+        st.image(
+            str(BASE_DIR / "1594050442709.jpeg"),
+            caption="Rafael Verdi de Freitas",
+            width="stretch",
+        )
 
 st.markdown("---")
 
-# --- TAB CREATION ---
-tab1, tab2, tab3, tab4 = st.tabs(["Summary & Skills", "Projects", "Professional Experience", "Education & Qualifications"])
+summary_tab, projects_tab, experience_tab, education_tab = st.tabs(
+    ["Summary & Skills", "Projects", "Experience", "Education & Credentials"]
+)
 
-# --- TAB 1: SUMMARY & SKILLS ---
-with tab1:
-    col1, col2 = st.columns((2, 1))
-    with col1:
-        st.header("Professional Summary")
-        st.write("""
-        Results-driven Data Scientist with over 5 years of experience in the financial industry, specializing in Strategic Data Management, Fraud Prevention, and Machine Learning. Proven track record of developing advanced fraud detection algorithms, building predictive models, and enhancing operational efficiency through automation and DevOps practices. A collaborative team player with a strong background in Business Administration, skilled in translating complex data into actionable business insights and driving organizational success.
-        """)
-    with col2:
-        st_lottie(load_lottieurl(lottie_animation_url), speed=1, height=250, key="initial")
-
-    st.markdown("---")
-    st.header("Technical Skills")
-    skills_data = {
-        'Skill': [
-            'Python', 'SQL', 'Power BI', 'Predictive Modeling',
-            'Snowflake', 'DBT', 'ETL Processes', 'Deep Learning',
-            'Apache Spark', 'Docker', 'CI/CD', 'AWS (S3, SageMaker)', 'Kubernetes',
-            'Kafka', 'Hadoop', 'NLP', 'MLOps', 'Data Governance', 'Agile', 'Generative AI'
-        ],
-        'Years': [
-            5, 5, 5, 5,
-            5, 5, 5, 3,
-            2, 2, 3, 3, 1,
-            2, 2, 3, 3, 4, 5, 1
-        ]
-    }
-    df_skills = pd.DataFrame(skills_data).sort_values(by="Years", ascending=True)
-
-    fig = px.bar(df_skills, 
-                 x='Years', 
-                 y='Skill', 
-                 orientation='h', 
-                 title='Years of Experience',
-                 template='plotly_dark',
-                 color='Years',
-                 color_continuous_scale=px.colors.sequential.Greens_r)
-    
-    fig.update_layout(
-        height=700,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(title='Years'),
-        yaxis=dict(title=''),
-        coloraxis_showscale=False,
-        title_x=0.5
+with summary_tab:
+    st.header("Professional Summary")
+    st.write(
+        "Data and Analytics Engineer with 6+ years designing cloud data warehouses "
+        "and golden-table architectures for global banking institutions and "
+        "digital-asset platforms. Built data and compliance infrastructure supporting "
+        "complex financial and regulatory environments worldwide. Deep command of the "
+        "modern data stack end to end—from AWS and dbt to Snowflake and Kubernetes—with "
+        "a focus on MLOps, process automation, and fraud analytics."
     )
-    st.plotly_chart(fig, use_container_width=True)
 
-# --- TAB 2: PROJECTS ---
-with tab2:
+    st.markdown("---")
+    st.header("Skills")
+    for group_title, group_skills in {
+        "Top Skills": [
+            "Cloud Data Architecture",
+            "Financial ML Infrastructure",
+            "Autonomous AI/MLOps Agents",
+            "Local LLM Deployment",
+        ],
+        "Core Stack": [
+            "Python",
+            "SQL",
+            "AWS",
+            "dbt",
+            "Snowflake",
+            "Kubernetes",
+            "Hex",
+            "Power BI",
+            "Airflow",
+        ],
+        "Specialties": [
+            "Golden Table Architecture",
+            "Cloud Data Engineering",
+            "Data Democratization",
+            "Cross-Border Regulatory Compliance",
+            "Process Automation",
+            "MLOps",
+            "Fraud Analytics",
+        ],
+    }.items():
+        render_skill_group(group_title, group_skills)
+
+with projects_tab:
     st.header("Projects")
-    st.write("Here are some of my projects on GitHub. Click on a title to see the repository!")
+    st.write("Selected public projects. Use the repository link under each project to view its source code.")
     st.markdown("---")
 
-    projects_data = [
+    projects = [
         {
             "url": "https://github.com/RVerdiF/api-embrapa-tech-challenge",
-            "title": "Embrapa API - Viticulture",
-            "readme": '''
-API for extracting and querying information related to viticulture, based on data from Embrapa.
-
-**Description**: A RESTful API developed with FastAPI that provides access to data on viticulture, extracted from Embrapa\'s Vitibrasil portal.
-
-**Data Categories**:
-- Production, Commercialization, Processing, Export, Import.
-
-**Technologies**:
-- FastAPI, Docker, Pandas, Pydantic.
-
-**API Usage**:
-The API is available at: `https://api-embrapa-tech-challenge.onrender.com/`
-Swagger Documentation: `https://api-embrapa-tech-challenge.onrender.com/docs`
-''',
-            "deployment_url": None
+            "title": "Embrapa API — Viticulture",
+            "description": (
+                "A FastAPI service for extracting and querying viticulture information "
+                "from Embrapa's Vitibrasil portal."
+            ),
+            "technologies": "FastAPI, Docker, Pandas, Pydantic",
+            "deployment_url": None,
         },
         {
             "url": "https://github.com/RVerdiF/TechChallenge3",
             "title": "BTC Prediction Project",
-            "readme": '''
-Bitcoin price prediction project using Machine Learning with a modular architecture and interactive dashboard.
-
-**Features**:
-- Data collection from Yahoo Finance with automatic updates.
-- Feature engineering with technical indicators (SMA, RSI, MACD, etc.).
-- Machine Learning model with LightGBM Classifier.
-- Web dashboard with user authentication, interactive chart, predictions, and custom training.
-
-**Modular Architecture**:
-- `ApiHandler`: Data collection.
-- `AuthHandler`: User authentication.
-- `DataHandler`: Management of price and model database.
-- `ModelHandler`: Training and prediction.
-- `main.py`: Interface with Streamlit.
-
-**Technologies**:
-- Streamlit, Pandas, yfinance, scikit-learn, lightgbm, plotly.
-''',
-            "deployment_url": "https://techchallenge3rafaelfreitas.streamlit.app/"
+            "description": (
+                "A modular machine-learning project for Bitcoin price prediction with an "
+                "interactive Streamlit dashboard."
+            ),
+            "technologies": "Streamlit, Pandas, yfinance, scikit-learn, LightGBM, Plotly",
+            "deployment_url": "https://techchallenge3rafaelfreitas.streamlit.app/",
         },
         {
             "url": "https://github.com/RVerdiF/PaysimViz",
             "title": "PaySim Dataset Explorer",
-            "readme": '''
-A Streamlit application for exploring and analyzing the PaySim synthetic financial dataset.
-
-**Features**:
-- High-performance backend to handle the large PaySim dataset.
-- Analysis of general statistics, transaction distribution, `isFlaggedFraud` performance, and identification of "mule accounts".
-
-**Architecture and Design**:
-- SQL-centric backend (SQLite) to avoid loading the entire dataset into memory.
-- Parallel execution of queries for a faster user experience.
-- High-performance aggregation with Polars for complex aggregations.
-
-**Technologies**:
-- Streamlit, Polars, SQLite, Pandas.
-''',
-            "deployment_url": "https://rverdif-paysimviz-app-olphe6.streamlit.app/"
+            "description": (
+                "A Streamlit application for exploring and analyzing the PaySim synthetic "
+                "financial dataset with a SQL-centric backend."
+            ),
+            "technologies": "Streamlit, Polars, SQLite, Pandas",
+            "deployment_url": "https://rverdif-paysimviz-app-olphe6.streamlit.app/",
         },
     ]
 
-    for project in projects_data:
-        # Main title links to GitHub
-        title_md = f"### [{project['title']}]({project['url']})"
-        
-        # Add deployment link if it exists
-        if project.get("deployment_url"):
-            title_md += f" | [Live App]({project['deployment_url']})"
-
-        st.markdown(title_md, unsafe_allow_html=True)
-        
-        with st.expander("See details (README)"):
-            st.markdown(project['readme'], unsafe_allow_html=True)
+    for project in projects:
+        st.subheader(project["title"])
+        st.write(project["description"])
+        st.caption(f"Technologies: {project['technologies']}")
+        project_links = f"[View repository]({project['url']})"
+        if project["deployment_url"]:
+            project_links += f" · [Open live project]({project['deployment_url']})"
+        st.markdown(project_links)
         st.markdown("---")
-    
-    st.markdown("##") # Add some space
-    st.subheader("Key Professional Projects")
-    st.markdown("""
-    <div class="card">
-        <p class="job-title">Autonomous AI Agents & MLOps Pipelines</p>
-        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
-        <p>Designed, engineered, and orchestrated autonomous AI agents and robust MLOps pipelines to automate complex data workflows, enhancing system scalability and reliability.</p>
-        <p><strong>Key Technologies:</strong> Python, AI/ML, MLOps, CI/CD, Docker, AWS</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Advanced Fraud Detection Algorithms</p>
-        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
-        <p>Developed and implemented advanced algorithms for real-time transactional fraud prevention, significantly improving the integrity and security of payment systems.</p>
-        <p><strong>Key Technologies:</strong> Python, Machine Learning, Predictive Modeling, Big Data (Spark/Kafka)</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Predictive Fraud Modeling</p>
-        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Scientist.</p>
-        <p>Built and trained sophisticated predictive fraud models using Machine Learning and AI, enabling proactive responses to emerging and evolving security threats.</p>
-        <p><strong>Key Technologies:</strong> Python, Scikit-learn, Deep Learning (TensorFlow/Keras), SQL</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Transaction Monitoring System</p>
-        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Analyst.</p>
-        <p>Created and maintained a comprehensive transaction monitoring system. This involved developing a Python-based backend and dynamic Power BI dashboards to assess operational risk and optimize security.</p>
-        <p><strong>Key Technologies:</strong> Python, Power BI, SQL, Statistical Analysis</p>
-    </div>
-    <div class="card">
-        <p class="job-title">Data Governance & Automation in Snowflake</p>
-        <p style="font-style: italic; color: #a0a0a0;">A confidential project from my role as a Data Analyst.</p>
-        <p>Led data governance initiatives by creating and managing tables, views, and stored procedures in Snowflake. Automated key departmental processes, improving workflow efficiency and team productivity.</p>
-        <p><strong>Key Technologies:</strong> Snowflake, Python, dbt, SQL, Data Governance</p>
-    </div>
-    """, unsafe_allow_html=True)
 
+    st.subheader("Selected Professional Projects")
+    render_card(
+        "Autonomous AI Agents & MLOps Pipelines",
+        "Confidential project from a Data Scientist role",
+        [
+            "Designed, engineered, and orchestrated autonomous AI agents and robust MLOps pipelines to automate complex data workflows.",
+            "Key technologies: Python, AI/ML, MLOps, CI/CD, Docker, AWS.",
+        ],
+    )
+    render_card(
+        "Advanced Fraud Detection Algorithms",
+        "Confidential project from a Data Scientist role",
+        [
+            "Developed and implemented advanced algorithms for real-time transactional fraud prevention.",
+            "Key technologies: Python, machine learning, predictive modeling, Apache Spark, Kafka.",
+        ],
+    )
+    render_card(
+        "Predictive Fraud Modeling",
+        "Confidential project from a Data Scientist role",
+        [
+            "Built and trained predictive fraud models to enable proactive responses to emerging security threats.",
+            "Key technologies: Python, scikit-learn, TensorFlow/Keras, SQL.",
+        ],
+    )
+    render_card(
+        "Transaction Monitoring System",
+        "Confidential project from a Data Analyst role",
+        [
+            "Created and maintained a transaction-monitoring system with a Python backend and Power BI dashboards.",
+            "Key technologies: Python, Power BI, SQL, statistical analysis.",
+        ],
+    )
+    render_card(
+        "Data Governance & Automation in Snowflake",
+        "Confidential project from a Data Analyst role",
+        [
+            "Created and managed tables, views, and stored procedures in Snowflake while automating departmental processes.",
+            "Key technologies: Snowflake, Python, dbt, SQL, data governance.",
+        ],
+    )
 
-# --- TAB 3: PROFESSIONAL EXPERIENCE (ALL CONTENT RESTORED) ---
-with tab3:
+with experience_tab:
     st.header("Professional Experience")
-    st.markdown("""
-    <div class="card">
-        <p class="job-title">Data Scientist, Fraud Prevention</p>
-        <p class="company-name">Banco Mercantil do Brasil | November 2024 – Present</p>
-        <ul>
-            <li>Engineer and orchestrate autonomous AI agents, designing and managing robust data and MLOps pipelines to automate complex workflows and enhance scalability.</li>
-            <li>Develop and implement advanced algorithms for transactional fraud prevention, ensuring the integrity and security of payment systems.</li>
-            <li>Build and train predictive fraud models using machine learning and AI, enabling proactive responses to emerging threats.</li>
-            <li>Lead autonomous project management using DevOps practices, accelerating solution delivery and improving system reliability.</li>
-        </ul>
-    </div>
-    <div class="card">
-        <p class="job-title">Data Analyst, Fraud Prevention</p>
-        <p class="company-name">Banco Mercantil do Brasil | January 2023 – November 2024</p>
-        <ul>
-            <li>Monitored and analyzed key performance indicators (KPIs) to ensure the quality and effectiveness of the department's services.</li>
-            <li>Developed and maintained a transaction monitoring system using Python and Power BI dashboards, applying statistical methods to assess operational risk and optimize security.</li>
-            <li>Automated key departmental processes, significantly improving workflow efficiency and team productivity.</li>
-            <li>Managed data governance by creating and maintaining tables, views, and procedures in Snowflake using Python, dbt, and SQL.</li>
-        </ul>
-    </div>
-    <div class="card">
-        <p class="job-title">Data Analysis & Fraud Prevention Assistant</p>
-        <p class="company-name">Banco Mercantil do Brasil | December 2021 – January 2023</p>
-        <ul>
-            <li>Provided critical support to the data analysis and fraud prevention teams, contributing to daily operations and strategic projects.</li>
-            <li>Assisted in data preparation, cleaning, and preliminary analysis to support senior analysts and data scientists.</li>
-        </ul>
-    </div>
-    <div class="card">
-        <p class="job-title">Intern</p>
-        <p class="company-name">Banco Mercantil do Brasil | November 2019 – November 2021</p>
-        <ul>
-            <li>Gained foundational experience in the financial industry, supporting various teams with data-related tasks and process documentation.</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    render_card(
+        "Founder & Lead Engineer",
+        "Sapiens Management & Technologies | Nov 2025 – Present | Belo Horizonte, Brazil",
+        [
+            "Boutique data consultancy contracted by international enterprises and global digital-asset firms to design, scale, and optimize mission-critical data platforms and analytics infrastructure.",
+            "Specialize in modern data stack deployment (AWS, dbt, Snowflake, Kubernetes), financial ML infrastructure, and production-grade automated tracking pipelines under strict global compliance constraints.",
+            "Own end-to-end SLA and delivery management, aligning data strategy with cross-functional business requirements to drive operational cost efficiency.",
+        ],
+    )
+    render_card(
+        "Analytics Engineer / Data Consultant",
+        "Kraken | Nov 2025 – Present | Tier-1 global digital-asset platform; engaged via Sapiens Management & Technologies",
+        [
+            "Built production-grade data pipelines and analytics solutions for high-volume financial and regulatory workflows in a global digital-asset environment.",
+            "Designed reusable data models and curated datasets that improved consistency, reliability, and access to trusted business data.",
+            "Automated recurring reporting and operational processes, reducing manual effort and improving delivery reliability.",
+            "Developed AI-powered workflow agents to streamline scheduling coordination, task routing, and multi-step operational processes.",
+            "Partnered with compliance, operations, analytics, and engineering stakeholders to translate complex requirements into maintainable data products.",
+        ],
+    )
+    render_card(
+        "Data Scientist (promoted from Intern / Fraud Analyst)",
+        "Banco Mercantil | Nov 2019 – Nov 2025 | Belo Horizonte, Brazil",
+        [
+            "Progressed over six years from intern to Data Scientist within the fraud-prevention organization, moving from transactional pattern analysis into building and owning the bank's fraud-detection infrastructure end to end.",
+            "Built and maintained institutional transaction-monitoring systems (PIX, TEDs) and KPI/Power BI dashboards; created and governed tables, views, tasks, and procedures in Snowflake using Python, dbt, and SQL.",
+            "Designed transactional fraud-prevention algorithms and trained predictive ML/AI fraud models, accelerating case-resolution speed by 30%+; monitored anomalies across fraud pipelines using statistical methods.",
+            "Developed and orchestrated autonomous AI/MLOps agents and automated workflows using agile practices integrated with DevOps platforms.",
+        ],
+    )
+    render_card(
+        "Data Consultant (Advisor)",
+        "Corporate Gestão Empresarial | Aug 2018 – Present | Greater Belo Horizonte",
+        [
+            "Act as the strategic liaison between commercial stakeholders and engineering, translating complex business requirements into technical product roadmaps and platform features.",
+            "Oversee workflow automations and data-driven operational improvements to streamline business administration.",
+        ],
+    )
 
-# --- TAB 4: EDUCATION & QUALIFICATIONS (ALL CONTENT RESTORED) ---
-with tab4:
+with education_tab:
     st.header("Education")
-    st.markdown("""
-    <div class="card">
-        <p class="degree-title">Postgraduate Specialization, Machine Learning Engineering</p>
-        <p class="university-name">FIAP | Expected February 2025</p>
-        <ul>
-            <li><strong>Advanced Modeling:</strong> In-depth study of Classic Machine Learning and Deep Learning models, including supervised, unsupervised, and reinforcement learning.</li>
-            <li><strong>Cloud & Big Data Ecosystems:</strong> Hands-on implementation of scalable ML solutions in cloud environments (AWS), leveraging platforms like Hadoop and Spark.</li>
-            <li><strong>Specialized AI Applications:</strong> Covers advanced techniques in NLP, Computer Vision, and Generative AI models (GPT-4, Stable Diffusion).</li>
-            <li><strong>MLOps & Productionalization:</strong> Emphasizes end-to-end MLOps practices, including automated data pipelines, containerization with Docker, and CI/CD for model deployment.</li>
-        </ul>
-    </div>
-    <div class="card">
-        <p class="degree-title">Postgraduate Specialization, Strategic Data Management & Analysis</p>
-        <p class="university-name">PUC Minas | August 2022 - October 2023</p>
-        <ul>
-            <li><strong>Data-Driven Strategy:</strong> Provided knowledge of data-driven culture, data governance frameworks (LGPD/GDPR), and Agile Project Management.</li>
-            <li><strong>Advanced Analytics & BI:</strong> Developed skills in advanced analytics using Python, including ETL/ELT processes and dimensional modeling for Data Warehouses.</li>
-        </ul>
-    </div>
-    <div class="card">
-        <p class="degree-title">Bachelor of Business Administration</p>
-        <p class="university-name">PUC Minas | February 2018 – December 2021</p>
-        <ul>
-            <li>Provided a strong foundation in strategic management, finance, marketing, and organizational processes.</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
+    render_card(
+        "Postgraduate Specialization (Lato Sensu), Machine Learning Engineering",
+        "FIAP | Feb 2025 – Feb 2026",
+        [
+            "Advanced study of classic machine learning and deep learning models, including supervised, unsupervised, and reinforcement learning.",
+            "Hands-on implementation of scalable ML solutions in AWS cloud environments, including Hadoop and Spark platforms.",
+            "Advanced techniques in NLP, computer vision, and generative AI models, including GPT-4 and Stable Diffusion.",
+            "End-to-end MLOps practices, including automated data pipelines, Docker containerization, and CI/CD for model deployment.",
+        ],
+    )
+    render_card(
+        "Postgraduate Specialization (Lato Sensu), Management & Strategic Data Analysis",
+        "Pontifícia Universidade Católica de Minas Gerais | Aug 2022 – Oct 2023",
+        [
+            "Data-driven culture, data-governance frameworks (LGPD/GDPR), and agile project management.",
+            "Advanced analytics with Python, ETL/ELT processes, and dimensional modeling for data warehouses.",
+        ],
+    )
+    render_card(
+        "Major, Business Administration",
+        "Pontifícia Universidade Católica de Minas Gerais | Jan 2018 – Dec 2021",
+        ["Foundation in strategic management, finance, marketing, and organizational processes."],
+    )
+    render_card(
+        "Distance Learning, Entrepreneurship, Business and Startups",
+        "Fast MBA | 2020",
+        [],
+    )
+
     st.markdown("---")
-    st.header("Certifications & Licenses")
-    st.markdown("""
-    <div class="card">
-        <ul>
-            <li>Financial Markets | Yale University (2023)</li>
-            <li>DBT & Snowflake (2023)</li>
-            <li>Data Analysis and Power BI (2023)</li>
-            <li>Data Analysis with Python (2022)</li>
-            <li>Certified Yellow Belt, Lean Six Sigma (2022)</li>
-            <li>Introduction to Data Science 2.0 (2020)</li>
-            <li>Certified White Belt, Lean Six Sigma (2020)</li>
-            <li>Transforming Ideas into Business (2015)</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    st.header("Courses & Certifications")
+    courses = [
+        ("AI Agents — Google", "Alura | Sep 2025"),
+        ("Financial Markets", "Yale University | Sep 2023"),
+        ("Análise de Dados e Power BI", "Escola Conquer | Sep 2023"),
+        ("DBT e Snowflake", "triggo.ai | Jun 2023"),
+        ("Data Analysis with Python", "freeCodeCamp | Jun 2022"),
+        ("Yellow Belt — Lean Six Sigma", "FM2S Educação e Consultoria | Jan 2022"),
+        ("Introdução à Ciência de Dados 2.0", "Data Science Academy | Apr 2020"),
+        ("Lean Six-Sigma — White Belt Certification", "Escola EDTI | Mar 2020"),
+        ("Transformando Ideias em Negócios", "Corporate Gestão Empresarial | Jan 2015"),
+    ]
+    course_items = "".join(
+        f"<li><strong>{escape(course)}</strong><br><span>{escape(provider)}</span></li>"
+        for course, provider in courses
+    )
+    st.markdown(
+        f'<article class="card"><ul class="credential-list">{course_items}</ul></article>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("---")
+    st.header("Languages")
+    language_items = "".join(
+        f"<li><strong>{escape(language)}</strong> — {escape(level)}</li>"
+        for language, level in [
+            ("Portuguese", "Native / Bilingual"),
+            ("English", "Full Professional"),
+        ]
+    )
+    st.markdown(
+        f'<article class="card"><ul class="credential-list">{language_items}</ul></article>',
+        unsafe_allow_html=True,
+    )
