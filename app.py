@@ -198,22 +198,13 @@ with projects_tab:
         ],
     )
     render_card(
-        "Advanced Fraud Detection Algorithms",
-        "Confidential project from a Data Scientist role",
-        [
-            "Developed and implemented advanced algorithms for real-time transactional fraud prevention.",
-            "Key technologies: Python, machine learning, predictive modeling, Apache Spark, Kafka.",
-        ],
-    )
-    render_card(
         "Fraud Analytics & Transaction Monitoring",
         "Confidential project from Data Scientist and Data Analyst roles",
         [
-            "Built and trained predictive fraud models alongside advanced algorithms for "
-            "transactional fraud prevention.",
-            "Built and maintained institutional transaction-monitoring systems and "
-            "KPI/Power BI dashboards; monitored anomalies across fraud pipelines using "
-            "statistical methods.",
+            "Developed advanced algorithms and predictive fraud models for transactional "
+            "fraud prevention.",
+            "Built and maintained institutional transaction-monitoring systems, KPI/Power BI "
+            "dashboards, and statistical anomaly monitoring.",
             "Key technologies: Python, SQL, Power BI.",
         ],
     )
