@@ -7,7 +7,7 @@ import streamlit as st
 BASE_DIR = Path(__file__).resolve().parent
 
 st.set_page_config(
-    page_title="Rafael Verdi de Freitas | Data & Analytics Engineer",
+    page_title="Rafael Verdi de Freitas | Data Engineer / Data Science / Analytics Engineer",
     page_icon="📊",
     layout="wide",
 )
@@ -59,7 +59,7 @@ with st.container():
     details_column, photo_column = st.columns((3, 1))
     with details_column:
         st.title("Rafael Verdi de Freitas")
-        st.subheader("Data & Analytics Engineer")
+        st.subheader("Data Engineer / Data Science / Analytics Engineer")
         st.caption("Belo Horizonte, Brazil — Remote (Americas time zones)")
         st.markdown(
             """
@@ -95,47 +95,56 @@ summary_tab, projects_tab, experience_tab, education_tab = st.tabs(
 with summary_tab:
     st.header("Professional Summary")
     st.write(
-        "Data & Analytics Engineer with 6+ years designing cloud data warehouses "
-        "and golden-table architectures for global banking institutions and "
-        "digital-asset platforms. Built data and compliance infrastructure supporting "
-        "complex financial and regulatory environments worldwide. Deep command of the "
-        "modern data stack end to end—from AWS and dbt to Snowflake and Kubernetes—with "
-        "a focus on MLOps, process automation, and fraud analytics."
+        "Data Engineer / Data Science / Analytics Engineer with 6+ years of experience "
+        "in cloud data platforms, automated pipelines, fraud prevention, and analytics "
+        "for banking institutions and digital-asset platforms. Focus on data engineering, "
+        "automation, MLOps, fraud analytics, and data quality."
     )
 
     st.markdown("---")
     st.header("Skills")
     for group_title, group_skills in {
-        "Top Skills": [
-            "Cloud Data Architecture",
-            "Financial ML Infrastructure",
-            "Autonomous AI/MLOps Agents",
-            "Local LLM Deployment",
+        "Data Engineering": [
+            "Data Pipelines",
+            "Data Modeling",
+            "Data Warehousing",
+            "Golden Table Architecture",
+            "Data Quality",
         ],
-        "Core Stack": [
-            "Python",
-            "SQL",
-            "AWS",
-            "dbt",
-            "Docker",
-            "Snowflake",
-            "Kubernetes",
-            "Hex",
+        "Analytics & BI": [
             "Power BI",
+            "Hex",
+            "KPIs",
+            "Self-Service Analytics",
+        ],
+        "Cloud & Infrastructure": [
+            "AWS",
+            "Kubernetes",
+            "Docker",
             "Airflow",
         ],
-        "Specialties": [
-            "Golden Table Architecture",
-            "Cloud Data Engineering",
-            "Data Pipelines",
-            "ETL/ELT",
-            "Data Modeling",
-            "Data Quality",
-            "Data Democratization",
-            "Cross-Border Regulatory Compliance",
-            "Process Automation",
-            "MLOps",
+        "Languages & Tools": [
+            "Python",
+            "SQL",
+            "dbt",
+            "Snowflake",
+            "Athena",
+        ],
+        "ML & Automation": [
+            "Machine Learning",
             "Fraud Analytics",
+            "MLOps",
+            "AI Agents",
+            "Autonomous Workflows",
+            "Local LLM",
+        ],
+        "Domain Expertise": [
+            "Financial Services",
+            "Fraud Prevention",
+            "Digital Assets",
+            "Banking",
+            "Compliance",
+            "Process Automation",
         ],
     }.items():
         render_skill_group(group_title, group_skills)
@@ -209,15 +218,12 @@ with projects_tab:
         ],
     )
     render_card(
-        "Production Data Pipelines & Trusted Data Layers",
+        "Production Data & Analytics Solutions",
         "Confidential project from an Analytics Engineer / Data Consultant role",
         [
-            "Built production-grade data pipelines and analytics solutions for high-volume "
-            "financial and regulatory workflows.",
-            "Designed reusable data models and curated datasets to improve consistency, "
-            "reliability, and access to trusted business data.",
-            "Automated recurring reporting and operational processes to reduce manual effort "
-            "and improve delivery reliability.",
+            "Developed and maintained data and analytics solutions supporting business decisions with reliable, accessible data.",
+            "Automated recurring reporting and operational processes to reduce manual effort and improve delivery reliability.",
+            "Improved data reliability and quality across analytics workflows, collaborating with partner areas to turn requirements into deliverables.",
         ],
     )
     render_card(
@@ -232,41 +238,41 @@ with projects_tab:
 with experience_tab:
     st.header("Professional Experience")
     render_card(
-        "Founder & Lead Engineer",
+        "Lead Engineer",
         "Sapiens Management & Technologies | Nov 2025 – Present | Belo Horizonte, Brazil",
         [
-            "Boutique data consultancy contracted by international enterprises and global digital-asset firms to design, scale, and optimize mission-critical data platforms and analytics infrastructure.",
-            "Specialize in modern data stack deployment (AWS, dbt, Snowflake, Kubernetes), financial ML infrastructure, and production-grade automated tracking pipelines under strict global compliance constraints.",
-            "Own end-to-end SLA and delivery management, aligning data strategy with cross-functional business requirements to drive operational cost efficiency.",
+            "Lead data consultancy engagements across cloud platforms (AWS, dbt, Snowflake, Kubernetes), delivering data and analytics solutions for clients.",
+            "Drive ML/MLOps initiatives and automation to improve delivery and reliability of data products.",
+            "Own end-to-end delivery and stakeholder alignment, translating business requirements into technical execution.",
         ],
     )
     render_card(
         "Analytics Engineer / Data Consultant",
-        "Kraken | Nov 2025 – Present | Tier-1 global digital-asset platform; engaged via Sapiens Management & Technologies",
+        "Kraken | Nov 2025 – Present | Belo Horizonte, Brazil",
         [
-            "Built production-grade data pipelines and analytics solutions for high-volume financial and regulatory workflows in a global digital-asset environment.",
-            "Designed reusable data models and curated datasets that improved consistency, reliability, and access to trusted business data.",
-            "Automated recurring reporting and operational processes, reducing manual effort and improving delivery reliability.",
-            "Developed AI-powered workflow agents to streamline scheduling coordination, task routing, and multi-step operational processes.",
-            "Partnered with compliance, operations, analytics, and engineering stakeholders to translate complex requirements into maintainable data products.",
+            "Develop and maintain data and analytics solutions, supporting business decisions with reliable and accessible data.",
+            "Automate recurring reports and operational processes, reducing manual effort and improving delivery reliability.",
+            "Improve data reliability and quality across analytics workflows, collaborating with partner areas to translate requirements into deliverables.",
         ],
     )
     render_card(
-        "Data Scientist (promoted from Intern / Fraud Analyst)",
+        "Data Scientist / Data Analytics",
         "Banco Mercantil | Nov 2019 – Nov 2025 | Belo Horizonte, Brazil",
         [
-            "Progressed over six years from intern to Data Scientist within the fraud-prevention organization, moving from transactional pattern analysis into building and owning the bank's fraud-detection infrastructure end to end.",
-            "Built and maintained institutional transaction-monitoring systems (PIX, TEDs) and KPI/Power BI dashboards; created and governed tables, views, tasks, and procedures in Snowflake using Python, dbt, and SQL.",
-            "Designed transactional fraud-prevention algorithms and trained predictive ML/AI fraud models, accelerating case-resolution speed by 30%+; monitored anomalies across fraud pipelines using statistical methods.",
-            "Developed and orchestrated autonomous AI/MLOps agents and automated workflows using agile practices integrated with DevOps platforms.",
+            "Progressed from intern and fraud analyst to Data Scientist over six years within the fraud-prevention organization.",
+            "Automated ~80% of recurring processes and delivered an end-to-end fraud-prevention solution.",
+            "Built and maintained pipelines and models, leveraging ML, Docker, and Kubernetes to accelerate case resolution by 30%+.",
+            "Monitored transactional activity with anomaly detection, and built dashboards/KPIs for fraud analytics.",
+            "Applied AI/MLOps practices to production fraud-detection workflows.",
         ],
     )
     render_card(
-        "Data Consultant (Advisor)",
+        "Founder & Lead Engineer",
         "Corporate Gestão Empresarial | Aug 2018 – Present | Greater Belo Horizonte",
         [
-            "Act as the strategic liaison between commercial stakeholders and engineering, translating complex business requirements into technical product roadmaps and platform features.",
-            "Oversee workflow automations and data-driven operational improvements to streamline business administration.",
+            "Founder and lead engineer providing technical strategic consulting for companies.",
+            "Apply AI, automation, and data to improve business processes and support decision-making.",
+            "Bridge commercial stakeholders and engineering, translating business needs into technical roadmaps.",
         ],
     )
 
@@ -274,7 +280,7 @@ with education_tab:
     st.header("Education")
     render_card(
         "Postgraduate Specialization (Lato Sensu), Machine Learning Engineering",
-        "FIAP | Feb 2025 – Feb 2026",
+        "FIAP | 2025 – 2026",
         [
             "Advanced study of classic machine learning and deep learning models, including supervised, unsupervised, and reinforcement learning.",
             "Hands-on implementation of scalable ML solutions in AWS cloud environments, including Hadoop and Spark platforms.",
@@ -284,7 +290,7 @@ with education_tab:
     )
     render_card(
         "Postgraduate Specialization (Lato Sensu), Management & Strategic Data Analysis",
-        "Pontifícia Universidade Católica de Minas Gerais | Aug 2022 – Oct 2023",
+        "Pontifícia Universidade Católica de Minas Gerais | 2022 – 2023",
         [
             "Data-driven culture, data-governance frameworks (LGPD/GDPR), and agile project management.",
             "Advanced analytics with Python, ETL/ELT processes, and dimensional modeling for data warehouses.",
@@ -328,8 +334,8 @@ with education_tab:
     language_items = "".join(
         f"<li><strong>{escape(language)}</strong> — {escape(level)}</li>"
         for language, level in [
-            ("Portuguese", "Native / Bilingual"),
-            ("English", "Full Professional"),
+            ("Portuguese", "Full Professional Proficiency / C2"),
+            ("English", "Highly Proficient"),
         ]
     )
     st.markdown(
