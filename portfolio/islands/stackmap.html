@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technology map</title>
+<style>
+/*__STYLES__*/
+html, body { margin: 0; background: transparent; color: var(--text); }
+.stackmap { padding: var(--space-4); }
+.layers { display: grid; }
+.layer-techs { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+</style>
+</head>
+<body>
+<div class="stackmap">
+  <div class="layers" id="layers"></div>
+  <div class="tech-detail" id="tech-detail" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const DATA = /*__PAYLOAD__*/;
+  const layersEl = document.getElementById("layers");
+  const detailEl = document.getElementById("tech-detail");
+  const buttons = {};
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function parentDocument() {
+    try {
+      const doc = window.parent && window.parent.document;
+      if (doc && doc.getElementById("home")) return doc;
+    } catch (error) { return null; }
+    return null;
+  }
+
+  function goToSection(id) {
+    const doc = parentDocument();
+    const target = doc && doc.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  DATA.layers.forEach(function (layer) {
+    const layerEl = el("div", "layer");
+    const labelWrap = el("div", "layer-label");
+    labelWrap.appendChild(el("div", null, layer.label));
+    labelWrap.appendChild(el("span", "layer-purpose", layer.purpose));
+    layerEl.appendChild(labelWrap);
+
+    const techs = el("div", "layer-techs");
+    layer.tech.forEach(function (tech) {
+      const button = el("button", "tech-btn", tech.name);
+      button.type = "button";
+      button.setAttribute("aria-pressed", "false");
+      button.dataset.techId = tech.id;
+      button.addEventListener("click", function () { select(tech.id); });
+      buttons[tech.id] = button;
+      techs.appendChild(button);
+    });
+    layerEl.appendChild(techs);
+    layersEl.appendChild(layerEl);
+  });
+
+  function select(techId) {
+    const tech = DATA.tech.find(function (candidate) { return candidate.id === techId; });
+    if (!tech) return;
+    Object.keys(buttons).forEach(function (key) {
+      buttons[key].setAttribute("aria-pressed", key === techId ? "true" : "false");
+    });
+
+    detailEl.textContent = "";
+    detailEl.appendChild(el("div", "tech-detail-name", tech.name));
+    detailEl.appendChild(el("div", "label", tech.layerLabel));
+    const what = el("div", "muted", tech.what);
+    what.style.fontSize = "var(--text-sm)";
+    detailEl.appendChild(what);
+
+    const wrap = el("div", "evidence");
+    wrap.appendChild(el("div", "label", "used at"));
+    const list = el("ul", "evidence");
+    tech.evidence.forEach(function (item) {
+      const li = el("li");
+      li.appendChild(el("span", "ref", item.ref));
+      li.appendChild(el("span", "what", item.detail));
+      list.appendChild(li);
+    });
+    wrap.appendChild(list);
+    detailEl.appendChild(wrap);
+
+    const related = (tech.related || []).filter(Boolean);
+    if (related.length) {
+      const chips = el("div", "chips");
+      related.forEach(function (item) {
+        const button = el("button", "arch-link", item.label);
+        button.type = "button";
+        button.addEventListener("click", function () { goToSection(item.section); });
+        chips.appendChild(button);
+      });
+      detailEl.appendChild(chips);
+    }
+  }
+
+  if (DATA.tech.length) select(DATA.tech[0].id);
+
+  /* Cross-island hook, used by the command palette. */
+  window.rafaelPortfolio = { selectTech: select };
+})();
+</script>
+</body>
+</html>

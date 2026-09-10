@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Query my experience</title>
+<style>
+/*__STYLES__*/
+html, body { margin: 0; background: transparent; color: var(--text); }
+.console-hint { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-dim); }
+.console-input .ps { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="console">
+  <div class="console-bar" id="console-bar" role="group" aria-label="Query presets"></div>
+  <div class="console-sql" id="console-sql" aria-live="polite"></div>
+  <div class="console-body">
+    <div class="table-wrap" id="table-wrap"></div>
+    <div class="result-note" id="result-note"></div>
+  </div>
+  <form class="console-input" id="console-form" autocomplete="off">
+    <label class="sr-only" for="console-input">Type a supported query</label>
+    <span class="ps" aria-hidden="true">sql&gt;</span>
+    <input id="console-input" type="text" spellcheck="false"
+           placeholder="SELECT * FROM experience WHERE technology = 'dbt';">
+    <button type="submit" class="chip-btn">run</button>
+  </form>
+  <div class="console-bar" style="border-top:1px solid var(--border);border-bottom:0">
+    <span class="console-hint" id="supported"></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const DATA = /*__PAYLOAD__*/;
+  const bar = document.getElementById("console-bar");
+  const sqlEl = document.getElementById("console-sql");
+  const tableWrap = document.getElementById("table-wrap");
+  const noteEl = document.getElementById("result-note");
+  const form = document.getElementById("console-form");
+  const input = document.getElementById("console-input");
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  /* SQL is only ever *displayed*. Highlighting is done by tokenising into
+     spans — the string is never parsed as code, and no engine executes it. */
+  const KEYWORDS = ["SELECT", "FROM", "WHERE", "AND", "OR", "LIKE", "COUNT", "DISTINCT", "ORDER", "BY"];
+
+  function paintSql(sql) {
+    sqlEl.textContent = "";
+    const tokens = String(sql).split(/(\s+|,|;)/);
+    tokens.forEach(function (token) {
+      const bare = token.trim().toUpperCase();
+      if (KEYWORDS.indexOf(bare) !== -1) sqlEl.appendChild(el("span", "kw", token));
+      else sqlEl.appendChild(document.createTextNode(token));
+    });
+  }
+
+  function renderTable(result) {
+    tableWrap.textContent = "";
+    if (!result || !result.rows || !result.rows.length) {
+      tableWrap.appendChild(el("div", "console-hint", "0 rows"));
+      noteEl.textContent = (result && result.note) || "";
+      return;
+    }
+    const table = el("table", "result");
+    const thead = el("thead");
+    const headRow = el("tr");
+    result.columns.forEach(function (column) { headRow.appendChild(el("th", null, column)); });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+    const tbody = el("tbody");
+    result.rows.forEach(function (row) {
+      const tr = el("tr");
+      row.forEach(function (cell) { tr.appendChild(el("td", null, cell)); });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    noteEl.textContent = (result.note || "") + " · " + result.rows.length + " row(s)";
+  }
+
+  function show(preset) {
+    paintSql(preset.sql);
+    renderTable(preset.result);
+    Array.prototype.forEach.call(bar.querySelectorAll("button"), function (button) {
+      button.setAttribute("aria-pressed", button.dataset.presetId === preset.id ? "true" : "false");
+    });
+  }
+
+  DATA.presets.forEach(function (preset) {
+    const button = el("button", "chip-btn", preset.label);
+    button.type = "button";
+    button.dataset.presetId = preset.id;
+    button.title = preset.description;
+    button.addEventListener("click", function () { show(preset); });
+    bar.appendChild(button);
+  });
+
+  document.getElementById("supported").textContent =
+    "supported shapes: " + DATA.supported.join("   ·   ");
+
+  const PATTERNS = [
+    {
+      regex: /^select\s+\*\s+from\s+experience\s+where\s+technology\s*=\s*'([^']+)'\s*;?$/i,
+      lookup: "technology",
+      template: function (value) {
+        return "SELECT * FROM experience WHERE technology = '" + value + "';";
+      }
+    },
+    {
+      regex: /^select\s+.+?\s+from\s+projects\s+where\s+domain\s*=\s*'([^']+)'\s*;?$/i,
+      lookup: "domain",
+      template: function (value) {
+        return "SELECT project, impact FROM projects WHERE domain = '" + value + "';";
+      }
+    },
+    {
+      regex: /^select\s+.+?\s+from\s+stack\s+where\s+category\s*=\s*'([^']+)'\s*;?$/i,
+      lookup: "category",
+      template: function (value) {
+        return "SELECT technology FROM stack WHERE category = '" + value + "';";
+      }
+    }
+  ];
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const query = input.value.trim();
+    if (!query) return;
+    for (let i = 0; i < PATTERNS.length; i += 1) {
+      const match = query.match(PATTERNS[i].regex);
+      if (match) {
+        const key = match[1].trim().toLowerCase();
+        const lookup = DATA.lookups[PATTERNS[i].lookup] || {};
+        const result = lookup[key];
+        paintSql(PATTERNS[i].template(match[1].trim()));
+        if (result) {
+          renderTable(result);
+        } else {
+          const available = Object.keys(lookup).slice(0, 12).join(", ");
+          renderTable({ columns: ["RESULT"], rows: [], note: "no rows — known values: " + available });
+        }
+        return;
+      }
+    }
+    paintSql(query);
+    renderTable({
+      columns: ["RESULT"],
+      rows: [],
+      note: "unsupported query — this is a fixed dataset, not a SQL engine. " +
+            "Supported: " + DATA.supported.join(" | ")
+    });
+  });
+
+  if (DATA.presets.length) show(DATA.presets[0]);
+})();
+</script>
+</body>
+</html>

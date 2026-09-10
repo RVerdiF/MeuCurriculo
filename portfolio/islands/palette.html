@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command palette</title>
+<style>
+/*__STYLES__*/
+html, body { margin: 0; background: transparent; color: var(--text); font-family: var(--font-mono); }
+.palette-note { font-size: var(--text-xs); color: var(--text-dim); }
+</style>
+</head>
+<body>
+<div class="palette-note" id="palette-note"></div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Command palette (Ctrl/Cmd + K).
+
+   Streamlit renders `st.iframe` content as a same-origin srcdoc frame, so this
+   island can mount an overlay into the *page* document — a palette that covers
+   the viewport instead of the frame. If that access is ever unavailable, it
+   degrades to an overlay inside this frame and keeps working.
+   --------------------------------------------------------------------------- */
+(function () {
+  "use strict";
+
+  const DATA = /*__PAYLOAD__*/;
+  const ROOT_ID = "rafaelos-palette";
+  const TRIGGER_ID = "rafaelos-palette-trigger";
+
+  let hostDocument = detectHost();
+  let hostAttempts = 0;
+
+  function detectHost() {
+    try {
+      const doc = window.parent && window.parent.document;
+      if (doc && doc.getElementById("home")) return doc;
+    } catch (error) {
+      /* not same-origin: stay inside the frame */
+    }
+    return null;
+  }
+
+  function attachShortcut(doc) {
+    if (doc.__rafaelosPaletteBound) return;
+    doc.__rafaelosPaletteBound = true;
+    doc.addEventListener("keydown", function (event) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        toggle();
+      }
+    });
+  }
+
+  function announce() {
+    const note = document.getElementById("palette-note");
+    if (!note) return;
+    note.textContent = hostDocument
+      ? "Ctrl / Cmd + K anywhere on this page. Also available from the search button in the header."
+      : "Palette shortcut is active inside this frame: Ctrl / Cmd + K.";
+  }
+
+  /* Streamlit renders progressively: the page may not exist yet the instant
+     this frame executes, so keep looking instead of silently degrading. */
+  function ensureHost() {
+    if (hostDocument) return hostDocument;
+    hostDocument = detectHost();
+    if (hostDocument) {
+      attachShortcut(hostDocument);
+      mountTrigger();
+      announce();
+    }
+    return hostDocument;
+  }
+
+  function el(tag, className, text) {
+    const node = (hostDocument || document).createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  /* --- cross-island hooks ------------------------------------------------- */
+
+  function findFrameByTitle(title) {
+    if (!hostDocument) return null;
+    const frames = hostDocument.querySelectorAll("iframe");
+    for (let i = 0; i < frames.length; i += 1) {
+      try {
+        const doc = frames[i].contentDocument;
+        if (doc && doc.title === title) return frames[i];
+      } catch (error) { /* cross-origin frame: ignore */ }
+    }
+    return null;
+  }
+
+  function scrollToSection(id) {
+    const target = hostDocument && hostDocument.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function focusTerminal(command) {
+    scrollToSection("terminal");
+    const frame = findFrameByTitle("Portfolio terminal");
+    if (!frame) return false;
+    try {
+      const hook = frame.contentWindow && frame.contentWindow.rafaelPortfolio;
+      if (hook) {
+        hook.focus(command);
+        return true;
+      }
+    } catch (error) { return false; }
+    return false;
+  }
+
+  function selectTechnology(techId) {
+    scrollToSection("lab");
+    const frame = findFrameByTitle("Technology map");
+    if (!frame) return false;
+    try {
+      const hook = frame.contentWindow && frame.contentWindow.rafaelPortfolio;
+      if (hook) {
+        hook.selectTech(techId);
+        return true;
+      }
+    } catch (error) { return false; }
+    return false;
+  }
+
+  function downloadResume() {
+    if (!hostDocument) return false;
+    const candidates = hostDocument.querySelectorAll("button, a");
+    for (let i = 0; i < candidates.length; i += 1) {
+      const text = (candidates[i].textContent || "").toLowerCase();
+      if (text.indexOf("résumé") !== -1 || text.indexOf("resume") !== -1) {
+        candidates[i].click();
+        return true;
+      }
+    }
+    scrollToSection("home");
+    return false;
+  }
+
+  function perform(item) {
+    switch (item.kind) {
+      case "nav":
+        scrollToSection(item.target);
+        break;
+      case "terminal":
+        focusTerminal(item.target || "");
+        break;
+      case "tech":
+        selectTechnology(item.target);
+        break;
+      case "resume":
+        downloadResume();
+        break;
+      case "link":
+        window.open(item.href, "_blank", "noopener,noreferrer");
+        break;
+      default:
+        break;
+    }
+  }
+
+  /* --- palette ------------------------------------------------------------ */
+
+  let root = null;
+  let input = null;
+  let list = null;
+  let filtered = DATA.items;
+  let active = 0;
+  function close() {
+    if (root && root.parentNode) root.parentNode.removeChild(root);
+    root = null;
+  }
+
+  function renderList() {
+    list.textContent = "";
+    if (!filtered.length) {
+      const empty = el("div", "palette-item", "no match — try 'experience', 'dbt', 'github'");
+      list.appendChild(empty);
+      return;
+    }
+    filtered.forEach(function (item, index) {
+      const button = el("button", "palette-item");
+      button.type = "button";
+      button.setAttribute("aria-selected", index === active ? "true" : "false");
+      button.appendChild(el("span", null, item.label));
+      button.appendChild(el("small", null, item.hint || ""));
+      button.addEventListener("click", function () { run(item); });
+      button.addEventListener("mousemove", function () {
+        active = index;
+        Array.prototype.forEach.call(list.children, function (child, i) {
+          if (child.setAttribute) child.setAttribute("aria-selected", i === index ? "true" : "false");
+        });
+      });
+      list.appendChild(button);
+    });
+  }
+
+  function run(item) {
+    close();
+    perform(item);
+  }
+
+  function filter(value) {
+    const text = value.trim().toLowerCase();
+    filtered = !text ? DATA.items : DATA.items.filter(function (item) {
+      return (item.label + " " + (item.hint || "") + " " + (item.keywords || "")).toLowerCase().indexOf(text) !== -1;
+    });
+    active = 0;
+    renderList();
+  }
+
+  function open() {
+    if (root) return;
+    root = el("div", "palette-backdrop");
+    root.id = ROOT_ID;
+    const panel = el("div", "palette");
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-modal", "true");
+    panel.setAttribute("aria-label", "Command palette");
+
+    input = hostDocument.createElement("input");
+    input.className = "palette-input";
+    input.type = "text";
+    input.placeholder = "jump to a section, open the terminal, search a technology…";
+    input.setAttribute("aria-label", "Search commands");
+    input.addEventListener("input", function () { filter(input.value); });
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        active = Math.min(active + 1, filtered.length - 1);
+        renderList();
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        active = Math.max(active - 1, 0);
+        renderList();
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        if (filtered[active]) run(filtered[active]);
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+      }
+    });
+
+    list = el("div", "palette-list");
+    panel.appendChild(input);
+    panel.appendChild(list);
+    root.appendChild(panel);
+    root.addEventListener("click", function (event) {
+      if (event.target === root) close();
+    });
+    hostDocument.body.appendChild(root);
+    filter("");
+    window.setTimeout(function () { input.focus(); }, 20);
+  }
+
+  function toggle() {
+    if (root) close();
+    else open();
+  }
+
+  /* --- global shortcut + nav trigger -------------------------------------- */
+
+  hostDocument.addEventListener("keydown", function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      toggle();
+    }
+  });
+
+  function mountTrigger() {
+    if (!hostDocument) return;
+    const side = hostDocument.querySelector(".nav-side");
+    if (!side || hostDocument.getElementById(TRIGGER_ID)) return;
+    const button = hostDocument.createElement("button");
+    button.id = TRIGGER_ID;
+    button.type = "button";
+    button.className = "chip-btn";
+    button.textContent = window.innerWidth < 760 ? "search" : "⌘K search";
+    button.setAttribute("aria-label", "Open command palette");
+    button.addEventListener("click", function () { open(); });
+    side.insertBefore(button, side.firstChild);
+  }
+
+  /* Keep looking for the page (progressive render), then keep the trigger
+     alive across Streamlit re-renders. */
+  const bootstrap = window.setInterval(function () {
+    hostAttempts += 1;
+    const doc = ensureHost();
+    if (doc) {
+      window.clearInterval(bootstrap);
+    } else if (hostAttempts > 40) {
+      window.clearInterval(bootstrap);
+      announce();
+    }
+  }, 250);
+
+  if (hostDocument) {
+    window.clearInterval(bootstrap);
+    attachShortcut(hostDocument);
+    mountTrigger();
+  }
+  announce();
+
+  window.setInterval(function () {
+    const doc = ensureHost();
+    if (doc && !doc.getElementById(TRIGGER_ID)) mountTrigger();
+  }, 1500);
+
+  /* Shortcut inside the frame too, so the palette is reachable even if the
+     page document is not (never a dead end). */
+  document.addEventListener("keydown", function (event) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      toggle();
+    }
+  });
+})();
+</script>
+</body>
+</html>

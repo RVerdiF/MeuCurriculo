@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio terminal</title>
+<style>
+/*__STYLES__*/
+html, body {
+  margin: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+}
+.term-body { max-height: 25rem; }
+.term-input-row .ps1 { color: var(--accent); white-space: nowrap; }
+.term-input-row .ps1 .path { color: var(--text-dim); }
+.term-hint { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-dim); }
+@media (max-width: 640px) { .term-body { max-height: 20rem; } }
+</style>
+</head>
+<body>
+<div class="term" id="term" data-state="ready">
+  <div class="term-bar">
+    <span class="term-title" id="term-title">data-systems-console</span>
+    <span class="term-state"><span class="status-dot" aria-hidden="true"></span><span id="term-state-text">ready</span></span>
+  </div>
+
+  <div class="term-body" id="term-body" role="log" aria-live="polite" aria-label="Terminal output" tabindex="0"></div>
+
+  <form class="term-input-row" id="term-form" autocomplete="off">
+    <label class="sr-only" for="term-input">Type a portfolio command</label>
+    <span class="ps1" aria-hidden="true"><span id="ps1">rafael@portfolio</span><span class="path">:~$</span></span>
+    <input id="term-input" type="text" spellcheck="false" autocapitalize="off"
+           aria-describedby="term-help-hint" placeholder="type a command, or click one below">
+    <span class="term-cursor" aria-hidden="true"></span>
+  </form>
+
+  <div class="term-suggest" role="group" aria-label="Suggested commands">
+    <span class="hint">try:</span>
+    <button type="button" class="chip-btn" data-cmd="help">help</button>
+    <button type="button" class="chip-btn" data-cmd="whoami">whoami</button>
+    <button type="button" class="chip-btn" data-cmd="experience">experience</button>
+    <button type="button" class="chip-btn" data-cmd="projects">projects</button>
+    <button type="button" class="chip-btn" data-cmd="stack">stack</button>
+    <button type="button" class="chip-btn" data-cmd="impact">impact</button>
+    <button type="button" class="chip-btn" data-cmd="contact">contact</button>
+    <button type="button" class="chip-btn" data-cmd="ls">ls</button>
+    <button type="button" class="chip-btn" data-cmd="clear">clear</button>
+  </div>
+
+  <div class="term-suggest" style="border-top:0;padding-top:0">
+    <span class="term-hint" id="term-help-hint">
+      ↑/↓ recall history · Tab completes · Esc clears input · everything below is a fixed command set —
+      no arbitrary execution
+    </span>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const DATA = /*__PAYLOAD__*/;
+
+  const term = document.getElementById("term");
+  const body = document.getElementById("term-body");
+  const form = document.getElementById("term-form");
+  const input = document.getElementById("term-input");
+  const ps1 = document.getElementById("ps1");
+  const stateText = document.getElementById("term-state-text");
+
+  ps1.textContent = DATA.profile.user + "@" + DATA.profile.host;
+  document.getElementById("term-title").textContent =
+    DATA.profile.user + "@" + DATA.profile.host + " — data-systems-console";
+  form.setAttribute("autocomplete", "off");
+
+  const history = [];
+  let historyIndex = 0;
+
+  /* ---------- DOM helpers (text only, never HTML from input) ---------- */
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function scrollDown() {
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function addEntry(command) {
+    const wrap = el("div", "term-entry");
+    const line = el("div", "term-cmd");
+    const prompt = el("span", "term-prompt");
+    prompt.appendChild(el("span", null, DATA.profile.user + "@" + DATA.profile.host));
+    prompt.appendChild(el("span", "path", ":~$"));
+    line.appendChild(prompt);
+    line.appendChild(el("span", null, command));
+    wrap.appendChild(line);
+    body.appendChild(wrap);
+    scrollDown();
+    return wrap;
+  }
+
+  function outputBlock(parent) {
+    const block = el("div", "term-out");
+    parent.appendChild(block);
+    return block;
+  }
+
+  function line(parent, text, className) {
+    parent.appendChild(el("div", className || null, text));
+    return parent;
+  }
+
+  function keyValueRows(parent, rows) {
+    const block = el("div", "term-block");
+    rows.forEach(function (row) {
+      const r = el("div", "term-row");
+      r.appendChild(el("span", "k", row[0]));
+      r.appendChild(el("span", "v", row[1]));
+      block.appendChild(r);
+    });
+    parent.appendChild(block);
+    return parent;
+  }
+
+  function jumpButton(parent, sectionId, label) {
+    const button = el("button", "term-jump", "→ " + label);
+    button.type = "button";
+    button.addEventListener("click", function () { goToSection(sectionId); });
+    parent.appendChild(button);
+    return parent;
+  }
+
+  function note(parent, text, className) {
+    parent.appendChild(el("div", className || null, text));
+    return parent;
+  }
+
+  /* ---------- Navigation into the parent document ---------- */
+
+  function parentDocument() {
+    try {
+      const doc = window.parent && window.parent.document;
+      if (doc && doc.getElementById("home")) return doc;
+    } catch (error) {
+      return null;
+    }
+    return null;
+  }
+
+  function goToSection(sectionId) {
+    const doc = parentDocument();
+    const target = doc && doc.getElementById(sectionId);
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    }
+    return false;
+  }
+
+  function clickParentDownload() {
+    const doc = parentDocument();
+    if (!doc) return false;
+    const candidates = doc.querySelectorAll("button, a");
+    for (let i = 0; i < candidates.length; i += 1) {
+      const node = candidates[i];
+      const text = (node.textContent || "").toLowerCase();
+      if (text.indexOf("résumé") !== -1 || text.indexOf("resume") !== -1) {
+        node.click();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function openExternal(url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  /* A mailto: must never be assigned to window.location here: this code runs
+     inside the island frame, so assigning it would navigate (and destroy) the
+     frame. window.open keeps the island — and everything it drives — alive. */
+  function openMail(href) {
+    openExternal(href);
+  }
+
+  /* ---------- Lookups ---------- */
+
+  function findRole(idOrSlug) {
+    const needle = String(idOrSlug || "").toLowerCase();
+    return DATA.roles.find(function (role) {
+      return role.id === needle || role.company.toLowerCase().indexOf(needle) !== -1 ||
+             role.title.toLowerCase().indexOf(needle) !== -1;
+    });
+  }
+
+  function findProject(idOrSlug) {
+    const needle = String(idOrSlug || "").toLowerCase();
+    return DATA.projects.find(function (project) {
+      return project.id === needle || project.name.toLowerCase().indexOf(needle) !== -1;
+    });
+  }
+
+  function findTech(idOrName) {
+    const needle = String(idOrName || "").toLowerCase();
+    return DATA.tech.find(function (tech) {
+      return tech.id === needle || tech.name.toLowerCase() === needle;
+    });
+  }
+
+  function link(id) {
+    return DATA.profile.links.find(function (item) { return item.id === id; });
+  }
+
+  /* ---------- Commands ---------- */
+
+  const COMMANDS = {};
+
+  function defineCommand(name, summary, run) {
+    COMMANDS[name] = { name: name, summary: summary, run: run };
+  }
+
+  defineCommand("help", "this reference", function (out) {
+    line(out, "Available commands", "strong");
+    const rowsBlock = el("div", "term-block");
+    COMMAND_ORDER.forEach(function (name) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", name));
+      row.appendChild(el("span", "v", COMMANDS[name].summary));
+      rowsBlock.appendChild(row);
+    });
+    out.appendChild(rowsBlock);
+    note(out, "", null);
+    line(out, "Shortcuts: ↑/↓ history · Tab complete · Esc clear · suggestions under the prompt.", "term-hint");
+  });
+
+  defineCommand("whoami", "identity and current focus", function (out) {
+    line(out, DATA.profile.name, "strong");
+    line(out, DATA.profile.subtitle);
+    line(out, "");
+    line(out, DATA.profile.summary);
+    line(out, "");
+    keyValueRows(out, [
+      ["status", DATA.profile.status],
+      ["location", DATA.profile.location],
+      ["availability", DATA.profile.availability],
+      ["experience", DATA.profile.years + " years"]
+    ]);
+    jumpButton(out, "experience", "open experience");
+  });
+
+  defineCommand("experience", "roles, or `experience kraken`", function (out, args) {
+    if (args.length) {
+      const role = findRole(args.join(" "));
+      if (!role) { line(out, "no such role: " + args.join(" "), "err"); return; }
+      renderRole(out, role);
+      jumpButton(out, "experience", "open experience section");
+      return;
+    }
+    const rows = el("div", "term-block");
+    DATA.roles.forEach(function (role) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", role.period));
+      row.appendChild(el("span", "v", role.title + " · " + role.company + (role.current ? "  [current]" : "")));
+      rows.appendChild(row);
+    });
+    out.appendChild(rows);
+    line(out, "");
+    line(out, "detail: `experience <company>` — e.g. `experience mercantil`", "term-hint");
+    jumpButton(out, "experience", "open experience section");
+  });
+
+  function renderRole(out, role) {
+    line(out, role.title + " — " + role.company, "strong");
+    line(out, role.period + " · " + role.location);
+    line(out, role.domain, "term-hint");
+    line(out, "");
+    line(out, role.mission);
+    if (role.progression.length) {
+      line(out, "");
+      line(out, "progression: " + role.progression.join(" → "), "acc");
+    }
+    line(out, "");
+    line(out, "what the work involved", "term-hint");
+    const list = el("div", "term-block");
+    role.bullets.forEach(function (bullet) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", "·"));
+      row.appendChild(el("span", "v", bullet));
+      list.appendChild(row);
+    });
+    out.appendChild(list);
+    if (role.impacts.length) {
+      line(out, "");
+      role.impacts.forEach(function (impact) {
+        line(out, impact.label + " — " + impact.detail, "acc");
+      });
+    }
+    if (role.tech.length) {
+      line(out, "");
+      line(out, "stack: " + role.tech.join(" · "), "term-hint");
+    }
+    if (role.systems.length) {
+      line(out, "systems: " + role.systems.map(function (s) { return s.name; }).join(" · "), "term-hint");
+    }
+  }
+
+  defineCommand("projects", "public and professional builds", function (out, args) {
+    if (args.length) {
+      const project = findProject(args.join(" "));
+      if (!project) { line(out, "no such project: " + args.join(" "), "err"); return; }
+      renderProject(out, project);
+      jumpButton(out, "projects", "open projects section");
+      return;
+    }
+    const rows = el("div", "term-block");
+    DATA.projects.forEach(function (project) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", project.kind === "public" ? "[public]" : "[professional]"));
+      row.appendChild(el("span", "v", project.name + " — " + project.tagline));
+      rows.appendChild(row);
+    });
+    out.appendChild(rows);
+    line(out, "");
+    line(out, "detail: `projects paysim` · repos: `open paysim`", "term-hint");
+    jumpButton(out, "projects", "open projects section");
+  });
+
+  function renderProject(out, project) {
+    line(out, project.name, "strong");
+    line(out, project.domain + " · " + project.kind + " project", "term-hint");
+    line(out, "");
+    line(out, project.summary);
+    line(out, "");
+    line(out, "problem", "term-hint");
+    line(out, project.problem);
+    if (project.decisions.length) {
+      line(out, "");
+      line(out, "technical decisions", "term-hint");
+      project.decisions.forEach(function (decision) { line(out, "· " + decision); });
+    }
+    if (project.outcome.length) {
+      line(out, "");
+      line(out, "outcome", "term-hint");
+      project.outcome.forEach(function (item) { line(out, "· " + item, "acc"); });
+    }
+    line(out, "");
+    line(out, "stack: " + project.stack.join(" · "), "term-hint");
+    if (project.repo || project.live) {
+      const links = [];
+      if (project.repo) links.push("repo");
+      if (project.live) links.push("live");
+      line(out, "links: " + links.join(" · ") + "  (use `open " + project.id + "`)", "term-hint");
+    }
+  }
+
+  defineCommand("stack", "technologies by responsibility", function (out, args) {
+    const filter = args.join(" ").toLowerCase();
+    const rows = el("div", "term-block");
+    let matched = false;
+    DATA.layers.forEach(function (layer) {
+      const tech = layer.tech.filter(function (name) {
+        return !filter || layer.id.indexOf(filter) !== -1 || layer.label.toLowerCase().indexOf(filter) !== -1;
+      });
+      if (!tech.length) return;
+      matched = true;
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", layer.label));
+      row.appendChild(el("span", "v", tech.join(" · ")));
+      rows.appendChild(row);
+    });
+    if (!matched) {
+      line(out, "no layer matched: " + filter, "err");
+      return;
+    }
+    out.appendChild(rows);
+    line(out, "");
+    line(out, "evidence for any technology: `grep dbt` · `cat stack/" + (DATA.tech[0] ? DATA.tech[0].id : "python") + ".md`", "term-hint");
+    jumpButton(out, "lab", "open the lab");
+  });
+
+  defineCommand("impact", "documented metrics", function (out) {
+    line(out, "system metrics (all traceable to the résumé)", "strong");
+    const block = el("div", "term-block");
+    DATA.metrics.forEach(function (metric) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", metric.label));
+      row.appendChild(el("span", "v", metric.value + " — " + metric.context + "  (" + metric.source + ")"));
+      block.appendChild(row);
+    });
+    out.appendChild(block);
+    jumpButton(out, "metrics", "open metrics");
+  });
+
+  defineCommand("contact", "how to reach me", function (out) {
+    const rows = el("div", "term-block");
+    DATA.profile.links.forEach(function (item) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", item.label.toLowerCase()));
+      row.appendChild(el("span", "v", item.value));
+      rows.appendChild(row);
+    });
+    out.appendChild(rows);
+    line(out, "");
+    line(out, "`open linkedin` · `open github` · `open email` · `resume`", "term-hint");
+    jumpButton(out, "contact", "open contact section");
+  });
+
+  defineCommand("resume", "download the PDF résumé", function (out) {
+    if (clickParentDownload()) {
+      line(out, "résumé download triggered — check your downloads.", "acc");
+    } else {
+      line(out, "download button not reachable from here; opening the hero instead.", "warn");
+      goToSection("home");
+    }
+  });
+
+  defineCommand("ls", "list the portfolio as a filesystem", function (out, args) {
+    const scope = (args[0] || "").toLowerCase();
+    if (!scope) {
+      line(out, "profile.md      README of the person");
+      line(out, "experience/     " + DATA.roles.length + " entries");
+      line(out, "projects/       " + DATA.projects.length + " entries");
+      line(out, "stack/          " + DATA.tech.length + " technologies");
+      return;
+    }
+    if (scope === "experience") {
+      DATA.roles.forEach(function (role) { line(out, role.id + ".md", "strong"); });
+      return;
+    }
+    if (scope === "projects") {
+      DATA.projects.forEach(function (project) { line(out, project.id + ".md", "strong"); });
+      return;
+    }
+    if (scope === "stack") {
+      DATA.tech.forEach(function (tech) { line(out, tech.id + ".md", "strong"); });
+      return;
+    }
+    line(out, "ls: no such directory: " + scope, "err");
+  });
+
+  defineCommand("cat", "read a file: profile.md, experience/x.md, projects/x.md, stack/x.md", function (out, args) {
+    const target = (args[0] || "").toLowerCase();
+    if (!target) { line(out, "usage: cat <file>  (try `ls`)", "err"); return; }
+    if (target === "profile.md" || target === "readme.md") {
+      line(out, DATA.profile.name, "strong");
+      line(out, DATA.profile.subtitle);
+      line(out, "");
+      line(out, DATA.profile.summary);
+      line(out, "");
+      keyValueRows(out, [
+        ["location", DATA.profile.location],
+        ["experience", DATA.profile.years + " years"],
+        ["focus", "Data · Analytics · AI"]
+      ]);
+      return;
+    }
+    const parts = target.split("/");
+    const scope = parts[0];
+    const name = (parts[1] || "").replace(".md", "");
+    if (scope === "experience") {
+      const role = findRole(name);
+      if (!role) { line(out, "cat: experience/" + name + ".md: no such file", "err"); return; }
+      renderRole(out, role);
+      return;
+    }
+    if (scope === "projects") {
+      const project = findProject(name);
+      if (!project) { line(out, "cat: projects/" + name + ".md: no such file", "err"); return; }
+      renderProject(out, project);
+      return;
+    }
+    if (scope === "stack") {
+      const tech = findTech(name);
+      if (!tech) { line(out, "cat: stack/" + name + ".md: no such file", "err"); return; }
+      line(out, tech.name + "  [" + tech.layer + "]", "strong");
+      line(out, tech.what);
+      line(out, "");
+      line(out, "used at", "term-hint");
+      const evidence = el("div", "term-block");
+      tech.evidence.forEach(function (item) {
+        const row = el("div", "term-row");
+        row.appendChild(el("span", "k", item.ref));
+        row.appendChild(el("span", "v", item.detail));
+        evidence.appendChild(row);
+      });
+      out.appendChild(evidence);
+      return;
+    }
+    line(out, "cat: " + target + ": no such file or directory", "err");
+  });
+
+  defineCommand("grep", "search the portfolio data, e.g. `grep dbt`", function (out, args) {
+    if (!args.length) { line(out, "usage: grep <term> [experience|projects|stack]", "err"); return; }
+    const needle = args[0].toLowerCase();
+    const scope = (args[1] || "").toLowerCase();
+    const hits = [];
+
+    function push(source, text, section) {
+      if (String(text).toLowerCase().indexOf(needle) !== -1) hits.push({ source: source, text: text, section: section });
+    }
+
+    if (!scope || scope.indexOf("experience") !== -1) {
+      DATA.roles.forEach(function (role) {
+        push(role.company, role.title + " — " + role.mission, "experience");
+        role.bullets.forEach(function (bullet) { push(role.company, bullet, "experience"); });
+        role.tech.forEach(function (t) { push(role.company, "stack · " + t, "experience"); });
+        role.impacts.forEach(function (impact) { push(role.company, impact.label + " — " + impact.detail, "experience"); });
+      });
+    }
+    if (!scope || scope.indexOf("project") !== -1) {
+      DATA.projects.forEach(function (project) {
+        push(project.name, project.tagline, "projects");
+        push(project.name, project.summary, "projects");
+        push(project.name, "stack · " + project.stack.join(" · "), "projects");
+        project.decisions.forEach(function (d) { push(project.name, d, "projects"); });
+        project.outcome.forEach(function (o) { push(project.name, o, "projects"); });
+        project.problem && push(project.name, project.problem, "projects");
+      });
+    }
+    if (!scope || scope.indexOf("stack") !== -1) {
+      DATA.tech.forEach(function (tech) {
+        push(tech.name, tech.what, "lab");
+        tech.evidence.forEach(function (item) {
+          push(tech.name, item.ref + " — " + item.detail, "lab");
+        });
+      });
+    }
+
+    if (!hits.length) {
+      line(out, "grep: no matches for '" + args[0] + "'" + (scope ? " in " + scope : ""), "err");
+      line(out, "try: dbt · python · aws · snowflake · fraud · automation · kubernetes", "term-hint");
+      return;
+    }
+
+    const seen = {};
+    let shown = 0;
+    const hitsBlock = el("div", "term-block");
+    hits.forEach(function (hit) {
+      const dedupe = hit.source + "|" + hit.text;
+      if (seen[dedupe]) return;
+      seen[dedupe] = true;
+      if (shown >= 14) return;
+      shown += 1;
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", hit.source));
+      row.appendChild(el("span", "v", hit.text));
+      hitsBlock.appendChild(row);
+    });
+    out.appendChild(hitsBlock);
+    line(out, "");
+    line(out, shown + " match(es)" + (shown >= 14 ? " (truncated)" : "") + " for '" + args[0] + "'", "term-hint");
+    if (hits[0].section) jumpButton(out, hits[0].section, "open related section");
+  });
+
+  defineCommand("open", "open a link: linkedin, github, email, résumé, or a project", function (out, args) {
+    const target = (args[0] || "").toLowerCase();
+    if (!target) { line(out, "usage: open <linkedin|github|email|resume|project-id>", "err"); return; }
+    if (target === "resume" || target === "cv" || target === "pdf") {
+      COMMANDS.resume.run(out, []);
+      return;
+    }
+    const direct = link(target);
+    if (direct) {
+      if (direct.kind === "mail") {
+        openMail(direct.href);
+        line(out, "opening " + direct.value, "acc");
+      } else {
+        openExternal(direct.href);
+        line(out, "opened " + direct.label + " → " + direct.value, "acc");
+      }
+      return;
+    }
+    const project = findProject(target);
+    if (project) {
+      const urls = [];
+      if (project.repo) urls.push(project.repo);
+      if (project.live) urls.push(project.live);
+      if (!urls.length) {
+        line(out, project.name + " is a confidential professional system — no public link.", "warn");
+        return;
+      }
+      urls.forEach(openExternal);
+      line(out, "opened " + urls.length + " link(s) for " + project.name, "acc");
+      if (project.live) line(out, "note: Streamlit Cloud demos sleep when idle — first load may take a moment.", "term-hint");
+      return;
+    }
+    line(out, "open: unknown target: " + target, "err");
+  });
+
+  defineCommand("go", "jump to a section: go projects", function (out, args) {
+    const target = (args[0] || "").toLowerCase();
+    if (!target) {
+      line(out, "sections: " + DATA.sections.map(function (s) { return s.id; }).join(" · "), "term-hint");
+      return;
+    }
+    if (goToSection(target)) {
+      line(out, "→ " + target, "acc");
+    } else {
+      line(out, "go: unknown section: " + target, "err");
+    }
+  });
+
+  defineCommand("clear", "clear the terminal", function (out, args, context) {
+    body.textContent = "";
+    context.silent = true;
+  });
+
+  defineCommand("sudo", "do not", function (out, args) {
+    if (args.join(" ").toLowerCase() === "hire-rafael") {
+      line(out, "permission granted.", "acc");
+      line(out, "opening contact information…");
+      const email = link("email");
+      if (email) openMail(email.href);
+      goToSection("contact");
+      return;
+    }
+    line(out, "rafael is not in the sudoers file. This incident has been reported.", "warn");
+  });
+
+  const COMMAND_ORDER = [
+    "help", "whoami", "experience", "projects", "stack", "impact", "contact",
+    "resume", "ls", "cat", "grep", "open", "go", "clear"
+  ];
+
+  /* ---------- Dispatch ---------- */
+
+  function execute(raw) {
+    const command = String(raw || "").trim();
+    if (!command) return;
+    const wrap = addEntry(command);
+    const out = outputBlock(wrap);
+    const parts = command.split(/\s+/);
+    const name = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    const handler = COMMANDS[name];
+
+    if (!handler) {
+      line(out, "command not found: " + name, "err");
+      const suggestion = COMMAND_ORDER.filter(function (candidate) {
+        return candidate.indexOf(name) === 0 || name.indexOf(candidate) === 0;
+      })[0];
+      if (suggestion) line(out, "did you mean: " + suggestion, "term-hint");
+      else line(out, "type `help` for the command list", "term-hint");
+      return;
+    }
+
+    stateText.textContent = "running";
+    try {
+      const context = { silent: false };
+      handler.run(out, args, context);
+      if (name !== "clear") stateText.textContent = "ready";
+      if (context.silent) stateText.textContent = "ready";
+    } catch (error) {
+      line(out, "internal error: " + error.message, "err");
+      stateText.textContent = "ready";
+    }
+    scrollDown();
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    const value = input.value;
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (history[history.length - 1] !== trimmed) history.push(trimmed);
+    historyIndex = history.length;
+    input.value = "";
+    execute(trimmed);
+  });
+
+  input.addEventListener("keydown", function (event) {
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!history.length) return;
+      historyIndex = Math.max(0, historyIndex - 1);
+      input.value = history[historyIndex];
+    } else if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (!history.length) return;
+      historyIndex = Math.min(history.length, historyIndex + 1);
+      input.value = historyIndex === history.length ? "" : history[historyIndex];
+    } else if (event.key === "Escape") {
+      input.value = "";
+    } else if (event.key === "Tab") {
+      const partial = input.value.trim().toLowerCase();
+      if (!partial) return;
+      const match = COMMAND_ORDER.filter(function (candidate) {
+        return candidate.indexOf(partial) === 0;
+      })[0];
+      if (match) {
+        event.preventDefault();
+        input.value = match + " ";
+      }
+    } else if (event.key === "l" && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      body.textContent = "";
+    }
+  });
+
+  /* Clicking anywhere in the terminal body puts the caret where a terminal
+     user expects it. Focus is never stolen on load. */
+  term.addEventListener("click", function (event) {
+    if (event.target.closest("button")) return;
+    if (event.target.closest("a")) return;
+    input.focus();
+  });
+
+  document.querySelectorAll(".chip-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const command = button.getAttribute("data-cmd");
+      if (command === "clear") { body.textContent = ""; return; }
+      input.value = command;
+      execute(command);
+      input.value = "";
+      input.focus();
+    });
+  });
+
+  /* Idle cursor: only shown while the input is empty and unfocused, so it
+     reads as a terminal without interfering with real typing. */
+  function updateCursor() {
+    if (document.activeElement === input && input.value.length) {
+      term.classList.remove("cursor-idle");
+      return;
+    }
+    term.classList.toggle("cursor-idle", input.value.length === 0);
+  }
+  input.addEventListener("input", updateCursor);
+  input.addEventListener("focus", updateCursor);
+  input.addEventListener("blur", updateCursor);
+  updateCursor();
+
+  /* ---------- Boot ---------- */
+  const boot = el("div", "term-out");
+  line(boot, DATA.profile.user + "@" + DATA.profile.host + " — portfolio data systems console", "strong");
+  line(boot, "Commands run against Rafael's structured portfolio data. Fixed command set, no shell access.");
+  line(boot, "Type `help`, or click a command under the prompt.", "term-hint");
+  body.appendChild(boot);
+
+  /* Cross-island hook: the command palette lives in a sibling frame and drives
+     the terminal through this interface (same-origin srcdoc frames). */
+  window.rafaelPortfolio = {
+    focus: function (command) {
+      if (command) {
+        const value = String(command).trim();
+        if (history[history.length - 1] !== value) history.push(value);
+        historyIndex = history.length;
+        execute(value);
+      }
+      input.focus();
+    },
+    run: execute
+  };
+})();
+</script>
+</body>
+</html>
