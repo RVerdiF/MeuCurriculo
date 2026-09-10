@@ -576,3 +576,35 @@
     gap: var(--space-1);
   }
 }
+
+/* ==========================================================================
+   Touch targets. Measured at 390px, the controls came out between 21 and 27px
+   tall, which is a miss for a thumb. These are dense data controls, so they
+   get a real tap height on touch widths rather than a 44px pill.
+   ========================================================================== */
+
+@media (max-width: 820px) {
+  .chip-btn {
+    min-height: 2.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .arch-node {
+    min-height: 2.75rem;
+    padding-block: 0.5rem;
+  }
+
+  .tech-btn {
+    min-height: 2.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .term-jump {
+    min-height: 2.5rem;
+    padding-block: 0.5rem;
+  }
+
+  .term-input-row input {
+    min-height: 2.5rem;
+  }
+}

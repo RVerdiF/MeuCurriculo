@@ -274,6 +274,28 @@ def keyboard_checks(page: Page, url: str) -> None:
           json.dumps([s.get("label") for s in ringed][:2]))
 
 
+def tap_targets(page: Page) -> None:
+    """Island controls have to be tappable with a thumb, not a mouse."""
+    minimum = 36
+    for title in ("Portfolio terminal", "Project architecture", "Core stack"):
+        frame = frame_for(page, title)
+        if not frame:
+            continue
+        for selector in (".chip-btn", ".arch-node", ".tech-btn", ".term-jump"):
+            heights = frame.evaluate(
+                """(sel) => Array.from(document.querySelectorAll(sel)).map(n =>
+                       Math.round(n.getBoundingClientRect().height))""",
+                selector,
+            )
+            if not heights:
+                continue
+            check(
+                f"tap target {selector} in {title}",
+                min(heights) >= minimum,
+                f"min {min(heights)}px of {len(heights)} controls",
+            )
+
+
 def viewports(page: Page, url: str) -> None:
     SHOTS.mkdir(parents=True, exist_ok=True)
     sizes = {
@@ -301,6 +323,7 @@ def viewports(page: Page, url: str) -> None:
                 check("mobile: terminal input usable", term.locator("#term-input").is_visible())
                 body = run_terminal(term, page, "whoami")
                 check("mobile: terminal responds", "Rafael Verdi de Freitas" in body)
+            tap_targets(page)
 
 
 def main() -> int:
