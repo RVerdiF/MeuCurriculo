@@ -10,5 +10,5 @@ def render() -> None:
         "palette",
         payloads.palette_payload(),
         "command palette",
-        "Ctrl / Cmd + K — also on the search button in the header",
+        "Ctrl / Cmd + K, also on the search button in the header",
     )

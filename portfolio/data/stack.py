@@ -1,4 +1,4 @@
-"""Technology map — organised by responsibility, backed by evidence.
+"""Technology map, organized by responsibility and backed by evidence.
 
 Only technologies named in the résumé (skills, roles, education or projects)
 appear here. Each entry carries pointers to where it was actually used, so the
@@ -68,7 +68,7 @@ STACK: tuple[StackLayer, ...] = (
     StackLayer(
         id="ship",
         label="SHIP",
-        purpose="Run the same artefact everywhere",
+        purpose="Run the same artifact everywhere",
         technologies=("docker", "kubernetes"),
     ),
     StackLayer(
@@ -96,7 +96,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="python",
         name="Python",
-        what="The working language: extraction, pipelines, modelling and automation.",
+        what="The working language: extraction, pipelines, modeling and automation.",
         tags=("language", "automation"),
         evidence=(
             Evidence("role", "mercantil", "Pipelines, models and process automation."),
@@ -109,11 +109,11 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="sql",
         name="SQL",
-        what="Query and modelling language behind every warehouse and analysis layer.",
-        tags=("language", "modelling"),
+        what="Query and modeling language behind every warehouse and analysis layer.",
+        tags=("language", "modeling"),
         evidence=(
             Evidence("role", "mercantil", "Analysis and monitoring queries."),
-            Evidence("project", "production_analytics", "Modelled analytics solutions."),
+            Evidence("project", "production_analytics", "Modeled analytics solutions."),
             Evidence("project", "snowflake_governance", "Tables, views and procedures."),
             Evidence("project", "paysim", "One targeted aggregation per view."),
         ),
@@ -132,7 +132,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="snowflake",
         name="Snowflake",
-        what="Cloud warehouse: modelling, governance and performance.",
+        what="Cloud warehouse: modeling, governance and performance.",
         tags=("warehouse",),
         evidence=(
             Evidence("role", "sapiens", "Snowflake as the warehouse layer."),
@@ -163,7 +163,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="kubernetes",
         name="Kubernetes",
-        what="Running containerised workloads in production.",
+        what="Running containerized workloads in production.",
         tags=("platform",),
         evidence=(
             Evidence("role", "sapiens", "Runtime for client platform work."),
@@ -173,7 +173,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="docker",
         name="Docker",
-        what="Packaging: the same artefact from laptop to production.",
+        what="Packaging: the same artifact from laptop to production.",
         tags=("platform",),
         evidence=(
             Evidence("role", "mercantil", "Containerised models and pipelines."),
@@ -241,7 +241,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="machine_learning",
         name="Machine Learning",
-        what="Predictive models in production, not just in notebooks.",
+        what="Predictive models that run in production and get monitored there.",
         tags=("ml",),
         evidence=(
             Evidence("role", "mercantil", "Predictive fraud models."),
@@ -273,7 +273,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="local_llm",
         name="Local LLM",
-        what="Models running on own hardware, for work that cannot leave the building.",
+        what="Models running on my own hardware, for work that cannot leave the building.",
         tags=("ai",),
         evidence=(
             Evidence("skills", "", "Listed under ML & Automation in the résumé."),
@@ -282,7 +282,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="ai_workflows",
         name="Autonomous Workflows",
-        what="Automation that executes the process, not just reports on it.",
+        what="Automation that carries the process through to the end.",
         tags=("ai", "automation"),
         evidence=(
             Evidence("role", "corporate", "AI and automation applied to business processes."),
@@ -342,8 +342,8 @@ TECHNOLOGIES: tuple[Technology, ...] = (
         what="Structures that make the same question answerable twice.",
         tags=("transform",),
         evidence=(
-            Evidence("role", "kraken", "Analytics solutions modelled for reuse."),
-            Evidence("education", "puc-mgmt", "Dimensional modelling for warehouses."),
+            Evidence("role", "kraken", "Analytics solutions modeled for reuse."),
+            Evidence("education", "puc-mgmt", "Dimensional modeling for warehouses."),
         ),
     ),
     Technology(
@@ -352,7 +352,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
         what="The layer everything else is built on.",
         tags=("store",),
         evidence=(
-            Evidence("education", "puc-mgmt", "Dimensional modelling for warehouses."),
+            Evidence("education", "puc-mgmt", "Dimensional modeling for warehouses."),
             Evidence("project", "snowflake_governance", "Warehouse objects under governance."),
         ),
     ),
@@ -406,7 +406,7 @@ TECHNOLOGIES: tuple[Technology, ...] = (
     Technology(
         id="fraud_analytics",
         name="Fraud Analytics",
-        what="Turning transaction behaviour into detection, not just reports.",
+        what="Turning transaction behavior into detection.",
         tags=("domain", "analytics"),
         evidence=(
             Evidence("role", "mercantil", "Six years inside fraud prevention."),

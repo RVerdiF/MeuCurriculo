@@ -26,8 +26,8 @@ def render() -> None:
           <div class="metrics-grid">{cards}</div>
           <p class="section-sub" style="margin-top:1rem;font-size:var(--text-sm)">
             Only numbers stated in the résumé appear here. Anything I cannot trace to a
-            role, project or the shipped CV is left out on purpose — a metric without a
-            source is marketing, not engineering.
+            role, a project or the shipped CV is left out on purpose. A metric without a
+            source is just a claim.
           </p>
         </div>
         """

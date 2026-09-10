@@ -3,7 +3,7 @@
 There is no SQL engine anywhere in this application. Every answer is computed
 here, in Python, from the structured portfolio data. The browser only sends a
 command string, matches it against these pre-computed lookups and renders the
-rows it receives — user input never reaches a database, a shell or an
+rows it receives. User input never reaches a database, a shell or an
 interpreter.
 """
 
@@ -146,7 +146,7 @@ for _layer in STACK:
     _result = Result(
         columns=("TECHNOLOGY", "WHAT I USE IT FOR"),
         rows=_rows,
-        note=f"{_layer.label} — {_layer.purpose}",
+        note=f"{_layer.label} · {_layer.purpose}",
     )
     STACK_BY_CATEGORY[_layer.id] = _result
     STACK_BY_CATEGORY[_layer.label.lower()] = _result
@@ -238,7 +238,7 @@ def _tech_answer(technology_id: str, headline: str) -> tuple[tuple[str, ...], tu
         if item.kind == "role":
             role = ROLES_BY_ID.get(item.ref)
             if role:
-                lines.append(f"{role.title} — {role.company}: {item.detail}")
+                lines.append(f"{role.title} at {role.company}: {item.detail}")
                 refs.append(role.id)
         elif item.kind == "project":
             project = _PROJECTS.get(item.ref)
@@ -263,8 +263,7 @@ ASK_INTENTS: tuple[AskIntent, ...] = (
         headline="dbt",
         answer=tuple(
             [
-                "dbt appears where the transformation layer has to be owned, not "
-                "improvised:",
+                "dbt shows up where the transformation layer needs an owner:",
                 *_dbt_lines[1:],
             ]
         ),
@@ -278,12 +277,13 @@ ASK_INTENTS: tuple[AskIntent, ...] = (
         answer=(
             "Six years inside fraud prevention at a bank, plus analytics for a "
             "digital-asset platform:",
-            "Fraud Analytics & Transaction Monitoring — predictive models, institutional "
-            "monitoring, anomaly detection and Power BI KPIs; 30%+ faster case resolution.",
-            "PaySim Dataset Explorer — public fraud-dataset explorer built around "
+            "Fraud Analytics & Transaction Monitoring: predictive models, institutional "
+            "monitoring, anomaly detection and Power BI KPIs. Case resolution improved "
+            "by 30%+.",
+            "PaySim Dataset Explorer: a public fraud-dataset explorer built around "
             "memory-safe, query-driven aggregation.",
-            "Data Governance & Automation in Snowflake — warehouse objects and stored "
-            "procedures automating departmental processes.",
+            "Data Governance & Automation in Snowflake: warehouse objects and stored "
+            "procedures that automate departmental processes.",
         ),
         refs=("mercantil", "fraud_monitoring", "paysim", "snowflake_governance"),
     ),
@@ -362,13 +362,14 @@ ASK_INTENTS: tuple[AskIntent, ...] = (
         keywords=("data engineering", "pipeline", "platform", "warehouse", "etl", "elt"),
         headline="Data engineering",
         answer=(
-            "The pattern is the same in every engagement: get the data out of the "
-            "source, make it trustworthy, then make it useful.",
-            "INGEST — Python and REST APIs over systems that publish data and nothing else.",
-            "TRANSFORM — dbt and SQL, with modelling that survives a second question.",
-            "STORE — Snowflake, SQLite where the application owns the data.",
-            "SHIP — Docker and Kubernetes so the artefact is the same everywhere.",
-            "ANALYZE — Power BI and Hex for the people making the decision.",
+            "The shape of the work is the same in every engagement: get the data out of "
+            "the source, make it trustworthy, then make it useful.",
+            "INGEST · Python and REST APIs over systems that publish data and nothing "
+            "else.",
+            "TRANSFORM · dbt and SQL, with modeling that survives a second question.",
+            "STORE · Snowflake, or SQLite where the application owns the data.",
+            "SHIP · Docker and Kubernetes, so the same artifact runs everywhere.",
+            "ANALYZE · Power BI and Hex for the people making the decision.",
         ),
         refs=("sapiens", "kraken", "production_analytics", "snowflake_governance"),
     ),

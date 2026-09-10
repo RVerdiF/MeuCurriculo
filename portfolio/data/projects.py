@@ -50,9 +50,10 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "dataset, built around a SQL-centric backend and streaming aggregation."
         ),
         problem=(
-            "The interesting parts of a fraud dataset are aggregate questions — mule "
-            "accounts, balance-draining transactions, how well the fraud flag actually "
-            "performs. Loading the full dataset into memory to answer them crashes the app."
+            "The interesting questions about a fraud dataset are aggregate ones: mule "
+            "accounts, balance-draining transactions, whether the fraud flag actually "
+            "works. Answering them by loading the whole dataset into memory is what "
+            "crashes the app."
         ),
         context=(
             "Built as an interview-grade project: the constraint was performance and "
@@ -68,20 +69,20 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "concurrent.futures",
         ),
         architecture=(
-            "SQLite backend — the dataset is ingested once and queried, never held in a "
-            "DataFrame.",
-            "Query layer — every chart maps to one targeted SQL aggregation.",
-            "Parallel executor — independent queries run together through "
+            "SQLite backend: the dataset is ingested once and queried from there, so it "
+            "never has to sit in a DataFrame.",
+            "Query layer: every chart maps to one targeted SQL aggregation.",
+            "Parallel executor: independent queries run together through "
             "ThreadPoolExecutor.",
-            "Polars stage — aggregations that SQL handles badly (mule account ranking) run "
-            "in streaming chunks.",
-            "Streamlit UI — home statistics, exploration views and fraud-specific analyses.",
+            "Polars stage: aggregations that SQL handles badly, such as mule-account "
+            "ranking, run in streaming chunks.",
+            "Streamlit UI: home statistics, exploration views and fraud-specific analyses.",
         ),
         data_flow=(
             FlowStep("SOURCE", "PaySim synthetic dataset downloaded from Kaggle."),
             FlowStep(
                 "INGESTION",
-                "Chunked CSV ingestion into SQLite — memory-safe by construction.",
+                "Chunked CSV ingestion into SQLite, memory-safe by construction.",
             ),
             FlowStep("QUERY", "One targeted aggregation per chart, executed in parallel."),
             FlowStep(
@@ -105,8 +106,8 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "dataset does not.",
         ),
         lessons=(
-            "Memory safety is a design decision, not a tuning step: the architecture "
-            "decides whether the app survives the data.",
+            "Memory was a design constraint, not a tuning detail. Deciding up front that "
+            "the dataset would never be held in memory is what made the app stable.",
         ),
         repo="https://github.com/RVerdiF/PaysimViz",
         live="https://rverdif-paysimviz-app-olphe6.streamlit.app/",
@@ -124,9 +125,9 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "dashboard."
         ),
         problem=(
-            "A prediction project is only interesting once the whole loop exists — data "
-            "arrives on a schedule, features are reproducible, models are stored, and "
-            "results can be tested against a strategy."
+            "A prediction project only becomes interesting once the whole loop exists: "
+            "data arrives on a schedule, features are reproducible, models are stored, "
+            "and the result can be tested against a strategy."
         ),
         context=(
             "Built to exercise modular Python architecture: every responsibility "
@@ -145,13 +146,13 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "joblib",
         ),
         architecture=(
-            "ApiHandler — market data collection through yfinance.",
-            "DataHandler — price database, model database and feature engineering.",
-            "ModelHandler — training and prediction, persisted with joblib.",
-            "BacktestHandler — simulates a strategy on top of the trained model.",
-            "Orchestration — daily background update so the dashboard is never stale.",
-            "AuthHandler — multi-user access with per-user models and settings.",
-            "LogHandler — centralised logging across the pipeline.",
+            "ApiHandler: market data collection through yfinance.",
+            "DataHandler: price database, model database and feature engineering.",
+            "ModelHandler: training and prediction, persisted with joblib.",
+            "BacktestHandler: simulates a strategy on top of the trained model.",
+            "Orchestration: daily background update so the dashboard is never stale.",
+            "AuthHandler: multi-user access with per-user models and settings.",
+            "LogHandler: centralized logging across the pipeline.",
         ),
         data_flow=(
             FlowStep("COLLECT", "Daily price series pulled from Yahoo Finance."),
@@ -178,8 +179,8 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             ),
         ),
         decisions=(
-            "TimeSeriesSplit instead of random cross-validation — the split respects "
-            "chronology, so evaluation does not leak the future.",
+            "TimeSeriesSplit instead of random cross-validation: the split respects "
+            "chronology, so the evaluation does not leak the future.",
             "Per-user persistence of models and training parameters, so a session can "
             "resume where it stopped.",
             "Data updates run in a background thread; the interface never blocks on I/O.",
@@ -191,8 +192,8 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "result.",
         ),
         lessons=(
-            "Orchestration is part of the model: a pipeline that is not scheduled is a "
-            "notebook, not a product.",
+            "I stopped treating the schedule as an operational detail. The daily update "
+            "is the part that makes the dashboard worth opening.",
         ),
         repo="https://github.com/RVerdiF/TechChallenge3",
         live="https://techchallenge3rafaelfreitas.streamlit.app/",
@@ -209,11 +210,11 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "portal and exposes it as validated, filterable JSON endpoints."
         ),
         problem=(
-            "The source data is published as web tables. Anything downstream — analysis or "
-            "a model — needs it as a typed API with predictable filters."
+            "The source data is published as web tables. Anything downstream, whether an "
+            "analysis or a model, needs it as a typed API with predictable filters."
         ),
         context=(
-            "Built as a data-engineering challenge: extraction, validation, containerised "
+            "Built as a data-engineering challenge: extraction, validation, containerized "
             "delivery and documentation, end to end."
         ),
         stack=(
@@ -226,11 +227,11 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "PyYAML",
         ),
         architecture=(
-            "Scraping layer — extraction modules per dataset category.",
-            "Models — Pydantic schemas validating data at the API boundary.",
-            "Routers — one route group per category, plus filter endpoints.",
-            "Utils and YAML configuration — extraction settings kept out of the code.",
-            "Delivery — Dockerfile with separate development and production Compose files.",
+            "Scraping layer: extraction modules per dataset category.",
+            "Models: Pydantic schemas validating data at the API boundary.",
+            "Routers: one route group per category, plus filter endpoints.",
+            "Utils and YAML configuration: extraction settings kept out of the code.",
+            "Delivery: Dockerfile with separate development and production Compose files.",
         ),
         data_flow=(
             FlowStep("SOURCE", "Embrapa Vitibrasil portal tables."),
@@ -260,8 +261,9 @@ PUBLIC_PROJECTS: tuple[Project, ...] = (
             "model.",
         ),
         lessons=(
-            "An API is a contract: typed models and real documentation are the difference "
-            "between a scraper and a service.",
+            "Writing the schema down changed how I built the extractors, because every "
+            "field had to mean something specific. That is the difference between a "
+            "scraper and a service.",
         ),
         repo="https://github.com/RVerdiF/api-embrapa-tech-challenge",
         live=None,
@@ -301,8 +303,8 @@ PROFESSIONAL_PROJECTS: tuple[Project, ...] = (
             FlowStep("VISIBILITY", "KPI and Power BI dashboards close the loop."),
         ),
         decisions=(
-            "Detection and visibility shipped together: a model nobody can monitor in "
-            "production does not stay in production.",
+            "I shipped detection and visibility together, because a model nobody can watch "
+            "is a model that gets switched off.",
         ),
         outcome=(
             "30%+ faster case resolution in the fraud-prevention workflow.",
@@ -338,17 +340,17 @@ PROFESSIONAL_PROJECTS: tuple[Project, ...] = (
         architecture=(
             "Autonomous agents executing multi-step data workflows.",
             "MLOps pipelines keeping models and data products reproducible.",
-            "CI/CD and containerised delivery on AWS.",
+            "CI/CD and containerized delivery on AWS.",
         ),
         data_flow=(
             FlowStep("TRIGGER", "A workflow step is queued or scheduled."),
             FlowStep("AGENTS", "Autonomous agents execute the steps end to end."),
-            FlowStep("MLOPS", "Pipelines version, test and deploy the resulting artefacts."),
+            FlowStep("MLOPS", "Pipelines version, test and deploy the resulting artifacts."),
             FlowStep("OUTCOME", "Recurring manual effort removed from the workflow."),
         ),
         decisions=(
-            "Automation treated as an engineering deliverable with CI/CD, not as scripts "
-            "kept on someone's machine.",
+            "Automation went through CI/CD like any other deliverable. Versioned pipelines "
+            "are what let someone else own the workflow later.",
         ),
         outcome=(
             "Complex data workflows automated end to end.",
@@ -371,20 +373,20 @@ PROFESSIONAL_PROJECTS: tuple[Project, ...] = (
             "cycle, which made delivery slow and quality inconsistent."
         ),
         context="Confidential work from an Analytics Engineer / Data Consultant role.",
-        stack=("SQL", "Python", "data modelling", "data quality", "automation"),
+        stack=("SQL", "Python", "data modeling", "data quality", "automation"),
         architecture=(
-            "Data and analytics solutions modelled for reliability and accessibility.",
+            "Data and analytics solutions modeled for reliability and accessibility.",
             "Automated recurring reporting and operational processes.",
             "Data reliability and quality work across analytics workflows.",
         ),
         data_flow=(
             FlowStep("REQUIREMENT", "Partner areas bring the business question."),
-            FlowStep("MODEL", "Data is modelled so the answer is repeatable."),
+            FlowStep("MODEL", "Data is modeled so the answer is repeatable."),
             FlowStep("AUTOMATE", "Recurring reporting stops being manual."),
             FlowStep("DELIVER", "Requirements land as deliverables, not one-off extracts."),
         ),
         decisions=(
-            "Requirements translated with partner areas before modelling, so the "
+            "Requirements translated with partner areas before modeling, so the "
             "deliverable matches the decision being made.",
         ),
         outcome=(
@@ -412,7 +414,7 @@ PROFESSIONAL_PROJECTS: tuple[Project, ...] = (
         architecture=(
             "Tables, views and stored procedures managed in Snowflake.",
             "Departmental processes automated around the warehouse.",
-            "Governance practices applied to the modelled objects.",
+            "Governance practices applied to the modeled objects.",
         ),
         data_flow=(
             FlowStep("MODEL", "Tables and views created and maintained in Snowflake."),

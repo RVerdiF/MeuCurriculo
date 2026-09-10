@@ -81,7 +81,7 @@ def _role(role: Role) -> str:
       <p class="role-mission">{esc(role.mission)}</p>
       {_progression(role)}
       <details class="disclosure">
-        <summary>deep dive — how the system gets built</summary>
+        <summary>deep dive: how the system gets built</summary>
         <div class="disclosure-body">
           <div class="subsection">
             <div class="subsection-head"><span class="subsection-title">delivery chain</span></div>
@@ -134,8 +134,8 @@ def render_credentials() -> None:
             <h3 class="section-title">Formal grounding, kept current</h3>
             <p class="section-sub">
               Machine Learning Engineering on top of a management and data-analysis
-              background — the combination is why the systems below are built around
-              decisions, not only around tables.
+              background. That combination is why the systems here are built around
+              decisions as much as around tables.
             </p>
           </div>
           <div class="education-grid">{education}</div>

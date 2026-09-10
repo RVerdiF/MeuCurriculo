@@ -17,7 +17,7 @@ html, body { margin: 0; background: transparent; color: var(--text); }
   <form class="console-input" id="ask-form" autocomplete="off" style="border-top:1px solid var(--border);padding-top:var(--space-4)">
     <label class="sr-only" for="ask-input">Ask a question about the portfolio data</label>
     <span class="ps" aria-hidden="true" style="color:var(--accent)">?</span>
-    <input id="ask-input" type="text" spellcheck="false" placeholder="ask something — e.g. what has he automated?">
+    <input id="ask-input" type="text" spellcheck="false" placeholder="ask something, e.g. what has he automated?">
     <button type="submit" class="chip-btn">ask</button>
   </form>
   <div class="ask-note" id="ask-note"></div>
@@ -113,14 +113,15 @@ html, body { margin: 0; background: transparent; color: var(--text); }
       answerEl.appendChild(el("div", "ask-headline", "No matching intent"));
       const lines = el("div", "ask-lines");
       lines.appendChild(el("div", "ask-line",
-        "This answers from a fixed set of intents — it is a lookup, not a language model. " +
-        "Try one of the questions above, or use the terminal's `grep` for free-text search."));
+        "This is a lookup over a fixed set of intents, not a language model. " +
+        "Try one of the questions above, or search the data as free text with `grep` " +
+        "in the terminal."));
       answerEl.appendChild(lines);
       noteEl.textContent = "0 matches · no external API is called anywhere in this portfolio";
     }
   });
 
-  noteEl.textContent = "Answers come from the same structured data the rest of the page renders — no paid LLM API required.";
+  noteEl.textContent = "Answers come from the same structured data the rest of the page renders. No LLM API is involved.";
   if (DATA.intents.length) render(DATA.intents[0]);
 })();
 </script>

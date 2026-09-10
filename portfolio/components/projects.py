@@ -1,4 +1,4 @@
-"""Projects — public builds and confidential professional systems as artefacts."""
+"""Projects: public builds and confidential professional systems as artifacts."""
 
 from __future__ import annotations
 
@@ -99,7 +99,7 @@ def _links(project: Project) -> str:
             f"rel='noopener noreferrer'>live demo ↗</a>"
         )
     if not parts:
-        parts.append("<span class='dim'>confidential — no public link</span>")
+        parts.append("<span class='dim'>confidential · no public link</span>")
     return "".join(parts)
 
 
@@ -145,7 +145,7 @@ def render_professional() -> None:
             <p class="section-sub">
               Employer-confidential work, described at the level the résumé already
               publishes: what the system does, which decisions were made and what changed.
-              No internal architecture, no client names, no data.
+              Internal architecture, client names and their data stay out of it.
             </p>
           </div>
           <div class="proj-grid">{cards}</div>

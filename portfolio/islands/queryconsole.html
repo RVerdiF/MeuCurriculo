@@ -147,7 +147,7 @@ html, body { margin: 0; background: transparent; color: var(--text); }
           renderTable(result);
         } else {
           const available = Object.keys(lookup).slice(0, 12).join(", ");
-          renderTable({ columns: ["RESULT"], rows: [], note: "no rows — known values: " + available });
+          renderTable({ columns: ["RESULT"], rows: [], note: "no rows. Known values: " + available });
         }
         return;
       }
@@ -156,7 +156,7 @@ html, body { margin: 0; background: transparent; color: var(--text); }
     renderTable({
       columns: ["RESULT"],
       rows: [],
-      note: "unsupported query — this is a fixed dataset, not a SQL engine. " +
+      note: "unsupported query. This is a fixed dataset, not a SQL engine. " +
             "Supported: " + DATA.supported.join(" | ")
     });
   });

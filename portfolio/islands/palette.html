@@ -179,7 +179,7 @@ html, body { margin: 0; background: transparent; color: var(--text); font-family
   function renderList() {
     list.textContent = "";
     if (!filtered.length) {
-      const empty = el("div", "palette-item", "no match — try 'experience', 'dbt', 'github'");
+      const empty = el("div", "palette-item", "no match. Try 'experience', 'dbt' or 'github'");
       list.appendChild(empty);
       return;
     }

@@ -58,8 +58,8 @@ EXPERIENCE: tuple[Role, ...] = (
         location="Belo Horizonte, Brazil",
         domain="Data consultancy · cloud data platforms",
         mission=(
-            "Lead data consultancy engagements, owning delivery end to end — from "
-            "business requirement to running platform."
+            "Lead data consultancy engagements and own delivery end to end, from the "
+            "business requirement through to a platform running in production."
         ),
         current=True,
         response=(
@@ -72,8 +72,8 @@ EXPERIENCE: tuple[Role, ...] = (
             "Snowflake, Kubernetes), delivering data and analytics solutions for clients.",
             "Drive ML/MLOps initiatives and automation to improve delivery and reliability "
             "of data products.",
-            "Own end-to-end delivery and stakeholder alignment, translating business "
-            "requirements into technical execution.",
+            "Own end-to-end delivery and keep stakeholders aligned while the work moves "
+            "from requirement to running system.",
         ),
         systems=(),
         technologies=("aws", "dbt", "snowflake", "kubernetes", "python", "mlops", "ci_cd"),
@@ -82,8 +82,8 @@ EXPERIENCE: tuple[Role, ...] = (
                 key="problem",
                 label="ENGAGEMENT",
                 detail=(
-                    "Client needs a data platform or analytics capability that has to run "
-                    "in production, not a slide deck."
+                    "A client needs a data platform or an analytics capability, and it "
+                    "has to run in production."
                 ),
             ),
             FlowStage(
@@ -107,8 +107,8 @@ EXPERIENCE: tuple[Role, ...] = (
             FlowStage(
                 key="outcome",
                 label="DELIVERY",
-                detail="End-to-end ownership: requirements translated into technical "
-                "execution, with stakeholder alignment along the way.",
+                detail="End-to-end ownership, from the first requirement to the "
+                "running platform, with stakeholders kept in the loop.",
             ),
         ),
         impacts=(),
@@ -123,8 +123,9 @@ EXPERIENCE: tuple[Role, ...] = (
         location="Brazil",
         domain="Digital assets · analytics engineering",
         mission=(
-            "Keep analytics trustworthy for a digital-asset business: reliable data, "
-            "automated recurring reporting, quality that survives partner hand-offs."
+            "Keep analytics trustworthy at a digital-asset business: data people can act "
+            "on, recurring reporting that runs itself, and quality that holds up when "
+            "another area takes the work over."
         ),
         current=True,
         response=(
@@ -152,8 +153,8 @@ EXPERIENCE: tuple[Role, ...] = (
             FlowStage(
                 key="model",
                 label="DATA MODEL",
-                detail="Data and analytics solutions modelled for reliability and "
-                "accessibility rather than one-off queries.",
+                detail="Data is modeled once and reused, so the same question does "
+                "not have to be solved again from scratch.",
             ),
             FlowStage(
                 key="automation",
@@ -186,13 +187,13 @@ EXPERIENCE: tuple[Role, ...] = (
         location="Belo Horizonte, Brazil",
         domain="Banking · fraud prevention",
         mission=(
-            "Move fraud prevention from manual review to monitored, automated detection — "
-            "and prove it in production."
+            "Move fraud prevention from manual review to monitored, automated detection, "
+            "and keep it running in production."
         ),
         current=False,
         response=(
             "Banco Mercantil — Data Scientist / Data Analytics (Nov 2019 — Nov 2025)",
-            "Six years inside the fraud-prevention organisation: pipelines, predictive "
+            "Six years inside fraud prevention at the bank: pipelines, predictive "
             "models, anomaly monitoring and automated processes.",
         ),
         responsibilities=(
@@ -200,8 +201,8 @@ EXPERIENCE: tuple[Role, ...] = (
             "within the fraud-prevention organization.",
             "Automated ~80% of recurring processes and delivered an end-to-end "
             "fraud-prevention solution.",
-            "Built and maintained pipelines and models, leveraging ML, Docker, and "
-            "Kubernetes to accelerate case resolution by 30%+.",
+            "Built and maintained pipelines and models with ML, Docker and Kubernetes, "
+            "which cut case resolution time by 30%+.",
             "Monitored transactional activity with anomaly detection, and built "
             "dashboards/KPIs for fraud analytics.",
             "Applied AI/MLOps practices to production fraud-detection workflows.",
@@ -287,8 +288,8 @@ EXPERIENCE: tuple[Role, ...] = (
         location="Greater Belo Horizonte",
         domain="Technical strategy · applied AI and automation",
         mission=(
-            "Founder-side engineering: translate a commercial need into a technical "
-            "roadmap and ship it with data and automation."
+            "Founder-side engineering: turn a commercial need into a technical roadmap "
+            "and ship it with data and automation."
         ),
         current=True,
         response=(
@@ -301,8 +302,8 @@ EXPERIENCE: tuple[Role, ...] = (
             "companies.",
             "Apply AI, automation, and data to improve business processes and support "
             "decision-making.",
-            "Bridge commercial stakeholders and engineering, translating business needs "
-            "into technical roadmaps.",
+            "Bridge the commercial side and engineering, so a business need turns into a "
+            "roadmap both sides can follow.",
         ),
         systems=(),
         technologies=("python", "automation", "ai_workflows", "local_llm", "data_quality"),
@@ -316,7 +317,7 @@ EXPERIENCE: tuple[Role, ...] = (
             FlowStage(
                 key="roadmap",
                 label="ROADMAP",
-                detail="Business need translated into a technical roadmap and scope "
+                detail="A business need turned into a roadmap and scope that "
                 "commercial stakeholders can follow.",
             ),
             FlowStage(

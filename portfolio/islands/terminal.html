@@ -51,8 +51,8 @@ html, body {
 
   <div class="term-suggest" style="border-top:0;padding-top:0">
     <span class="term-hint" id="term-help-hint">
-      ↑/↓ recall history · Tab completes · Esc clears input · everything below is a fixed command set —
-      no arbitrary execution
+      ↑/↓ recall history · Tab completes · Esc clears input · every command comes from a
+      fixed set
     </span>
   </div>
 </div>
@@ -271,7 +271,7 @@ html, body {
     });
     out.appendChild(rows);
     line(out, "");
-    line(out, "detail: `experience <company>` — e.g. `experience mercantil`", "term-hint");
+    line(out, "detail: `experience <company>`, e.g. `experience mercantil`", "term-hint");
     jumpButton(out, "experience", "open experience section");
   });
 
@@ -413,7 +413,7 @@ html, body {
 
   defineCommand("resume", "download the PDF résumé", function (out) {
     if (clickParentDownload()) {
-      line(out, "résumé download triggered — check your downloads.", "acc");
+      line(out, "résumé download triggered. Check your downloads.", "acc");
     } else {
       line(out, "download button not reachable from here; opening the hero instead.", "warn");
       goToSection("home");
@@ -582,12 +582,12 @@ html, body {
       if (project.repo) urls.push(project.repo);
       if (project.live) urls.push(project.live);
       if (!urls.length) {
-        line(out, project.name + " is a confidential professional system — no public link.", "warn");
+        line(out, project.name + " is a confidential professional system, so it has no public link.", "warn");
         return;
       }
       urls.forEach(openExternal);
       line(out, "opened " + urls.length + " link(s) for " + project.name, "acc");
-      if (project.live) line(out, "note: Streamlit Cloud demos sleep when idle — first load may take a moment.", "term-hint");
+      if (project.live) line(out, "note: Streamlit Cloud demos sleep when idle, so the first load may take a moment.", "term-hint");
       return;
     }
     line(out, "open: unknown target: " + target, "err");

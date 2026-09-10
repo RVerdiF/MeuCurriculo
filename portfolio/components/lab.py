@@ -19,7 +19,7 @@ def render() -> None:
         "stackmap",
         payloads.stackmap_payload(),
         "technology map",
-        "organised by responsibility, not by percentage — click a technology for evidence",
+        "grouped by responsibility. Click a technology to see where it was used",
     )
     st.html('<div class="wrap" style="height:var(--space-6)"></div>')
     shell.island(
@@ -33,5 +33,5 @@ def render() -> None:
         "ask",
         payloads.ask_payload(),
         "ask the data",
-        "deterministic lookup over the same structured data — no LLM API, no cost",
+        "answers come from the same structured data, with no LLM call and no API cost",
     )

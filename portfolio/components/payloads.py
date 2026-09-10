@@ -122,7 +122,7 @@ def tech_payload(tech_id: str) -> dict[str, Any]:
         "name": tech.name,
         "what": tech.what,
         "layer": layer.label if layer else "",
-        "layerLabel": (layer.label + " — " + layer.purpose) if layer else "",
+        "layerLabel": (layer.label + " · " + layer.purpose) if layer else "",
         "evidence": evidence,
         "related": unique_related,
     }

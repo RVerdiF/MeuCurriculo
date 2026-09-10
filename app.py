@@ -38,8 +38,8 @@ def main() -> None:
         "metrics",
         "01 / system metrics",
         "Documented numbers, each with a source",
-        "Six years of production work summarised by what can be verified. "
-        "Every figure below is traceable to the shipped résumé.",
+        "Six years of production work, summarized by the numbers that can be checked. "
+        "Every figure below comes from the shipped résumé.",
     )
     metrics.render()
     shell.section_end()

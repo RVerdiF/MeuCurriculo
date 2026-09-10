@@ -83,7 +83,7 @@ html, body { margin: 0; background: transparent; color: var(--text); }
     const laneEl = el("div", "arch-lane");
     const label = el("div", "arch-lane-label");
     label.appendChild(el("span", "n", String(LANES.indexOf(lane) + 1).padStart(2, "0")));
-    label.appendChild(el("span", null, lane.label + " — " + lane.note));
+    label.appendChild(el("span", null, lane.label + " · " + lane.note));
     laneEl.appendChild(label);
 
     const row = el("div", "arch-row");
@@ -104,7 +104,7 @@ html, body { margin: 0; background: transparent; color: var(--text); }
     const cross = el("div", "arch-cross");
     const label = el("div", "arch-lane-label");
     label.appendChild(el("span", "n", "↔"));
-    label.appendChild(el("span", null, "CROSS-CUTTING — true for every stage above"));
+    label.appendChild(el("span", null, "CROSS-CUTTING · true at every stage above"));
     cross.appendChild(label);
     const row = el("div", "arch-row");
     row.style.marginTop = "0.5rem";

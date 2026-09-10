@@ -65,10 +65,9 @@ class Profile:
 
 
 SUMMARY = (
-    "Data Engineer / Data Science / Analytics Engineer with 6+ years of experience in "
-    "cloud data platforms, automated pipelines, fraud prevention, and analytics for "
-    "banking institutions and digital-asset platforms. Focus on data engineering, "
-    "automation, MLOps, fraud analytics, and data quality."
+    "6+ years of data engineering for banks and digital-asset platforms: cloud data "
+    "platforms, automated pipelines, fraud prevention and analytics. The work sits "
+    "mostly in data engineering, automation, MLOps, fraud analytics and data quality."
 )
 
 PROFILE = Profile(
@@ -90,7 +89,7 @@ PROFILE = Profile(
         ("FOCUS", "Data · Analytics · AI"),
     ),
     hero_themes=(
-        "Building reliable data systems,",
+        "Building data systems,",
         "analytics platforms and AI workflows.",
     ),
     links=(
