@@ -1,7 +1,19 @@
 [theme]
 base = "dark"
-primaryColor = "#72D77B"
-backgroundColor = "#121212"
-secondaryBackgroundColor = "#1E1E1E"
-textColor = "#F5F5F5"
+primaryColor = "#72d77b"
+backgroundColor = "#0b0c0e"
+secondaryBackgroundColor = "#111215"
+textColor = "#e9ebee"
 font = "sans serif"
+
+[server]
+# Serves ./static at /app/static/<file>, which is how the résumé is downloaded
+# without a widget round-trip.
+enableStaticServing = true
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = "full"
+toolbarMode = "minimal"
