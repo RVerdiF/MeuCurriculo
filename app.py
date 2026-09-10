@@ -16,7 +16,7 @@ st.set_page_config(
 def local_css(file_name: str) -> None:
     """Load a stylesheet stored alongside this application."""
     css = (BASE_DIR / file_name).read_text(encoding="utf-8")
-    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    st.html(f"<style>{css}</style>")
 
 
 local_css("style.css")
@@ -25,16 +25,13 @@ with open(BASE_DIR / "CV.pdf", "rb") as pdf_file:
     resume_pdf = pdf_file.read()
 
 # Accessible skip link for keyboard navigation
-st.markdown(
-    '<a href="#summary-skills" class="skip-link">Skip to main content</a>',
-    unsafe_allow_html=True,
-)
+st.html('<a href="#summary-skills" class="skip-link">Skip to main content</a>')
 
 # Hero Section
 with st.container():
     details_column, photo_column = st.columns((3, 1))
     with details_column:
-        st.markdown(
+        st.html(
             """
             <header class="hero-header">
                 <h1 class="hero-name">Rafael Verdi de Freitas</h1>
@@ -51,8 +48,7 @@ with st.container():
                     <a class="contact-badge" href="https://github.com/RVerdiF" target="_blank" rel="noopener noreferrer">GitHub</a>
                 </div>
             </header>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         st.download_button(
             label="Download résumé (PDF)",
@@ -67,7 +63,7 @@ with st.container():
             width="stretch",
         )
 
-    st.markdown(
+    st.html(
         """
         <div class="hero-stats" role="list">
             <div class="stat-card" role="listitem">
@@ -87,12 +83,11 @@ with st.container():
                 <span class="stat-label">Americas Time Zones Availability</span>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 # Sticky In-Page Navigation
-st.markdown(
+st.html(
     """
     <nav class="site-nav" aria-label="Portfolio Sections">
         <ul class="nav-list">
@@ -102,8 +97,7 @@ st.markdown(
             <li><a href="#education-credentials" class="nav-link">Education &amp; Credentials</a></li>
         </ul>
     </nav>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 
@@ -168,7 +162,7 @@ def render_summary_skills() -> None:
         )
     skills_grid_html = "".join(groups_markup)
 
-    st.markdown(
+    st.html(
         f"""
         <section id="summary-skills" class="portfolio-section" aria-labelledby="heading-summary-skills">
             <div class="section-header">
@@ -186,8 +180,7 @@ def render_summary_skills() -> None:
             <h3 class="subsection-title">Skills</h3>
             <div class="skills-grid">{skills_grid_html}</div>
         </section>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -316,7 +309,7 @@ def render_projects() -> None:
         )
     pro_projects_html = "".join(pro_cards)
 
-    st.markdown(
+    st.html(
         f"""
         <section id="projects" class="portfolio-section" aria-labelledby="heading-projects">
             <div class="section-header">
@@ -329,8 +322,7 @@ def render_projects() -> None:
             <h3 class="subsection-title">Selected Professional Projects</h3>
             <div class="pro-projects-grid">{pro_projects_html}</div>
         </section>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -406,7 +398,7 @@ def render_experience() -> None:
         )
     timeline_html = "".join(items_html)
 
-    st.markdown(
+    st.html(
         f"""
         <section id="experience" class="portfolio-section" aria-labelledby="heading-experience">
             <div class="section-header">
@@ -414,8 +406,7 @@ def render_experience() -> None:
             </div>
             <div class="timeline" role="list">{timeline_html}</div>
         </section>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -507,7 +498,7 @@ def render_education_credentials() -> None:
         for lang, level in languages
     )
 
-    st.markdown(
+    st.html(
         f"""
         <section id="education-credentials" class="portfolio-section" aria-labelledby="heading-education-credentials">
             <div class="section-header">
@@ -520,8 +511,7 @@ def render_education_credentials() -> None:
             <h3 class="subsection-title">Languages</h3>
             <div class="languages-grid">{lang_cards}</div>
         </section>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 
@@ -532,11 +522,10 @@ render_experience()
 render_education_credentials()
 
 # Portfolio Footer
-st.markdown(
+st.html(
     """
     <footer class="portfolio-footer">
         <p>Rafael Verdi de Freitas &middot; Data Engineer / Data Science / Analytics Engineer</p>
     </footer>
-    """,
-    unsafe_allow_html=True,
+    """
 )
