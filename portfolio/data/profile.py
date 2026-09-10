@@ -83,7 +83,6 @@ PROFILE = Profile(
     years_experience="6+",
     status="available",
     meta=(
-        ("STATUS", "available"),
         ("LOCATION", "Brazil · GMT-3"),
         ("EXPERIENCE", "6+ years"),
         ("FOCUS", "Data · Analytics · AI"),

@@ -1,9 +1,10 @@
-"""Professional history as structured systems history.
+"""Professional history, kept short on purpose.
 
-Every bullet, date and technology assignment below is taken from `CV.pdf`
-and the résumé content previously published by this repository. Nothing is
-inferred (for example, a technology is attached to a role only when the
-résumé states it for that role's description).
+Each role answers six questions and stops: role, company, context, what I
+owned, main impact, core technologies. The technical depth lives in
+`portfolio.data.projects`, so nothing is told twice.
+
+Every title, date and technology below comes from `CV.pdf`.
 """
 
 from __future__ import annotations
@@ -12,39 +13,19 @@ from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
-class FlowStage:
-    """One stage of the delivery chain for a role (problem → outcome)."""
-
-    key: str
-    label: str
-    detail: str
-
-
-@dataclass(frozen=True)
-class Impact:
-    label: str
-    detail: str
-
-
-@dataclass(frozen=True)
 class Role:
     id: str
     title: str
     company: str
     period: str
-    start: str
-    end: str
     location: str
-    domain: str
-    mission: str
-    current: bool
-    response: str  # what a terminal `experience` command prints
-    responsibilities: tuple[str, ...]
-    systems: tuple[str, ...]  # project ids from portfolio.data.projects
-    technologies: tuple[str, ...]  # technology ids from portfolio.data.stack
-    flow: tuple[FlowStage, ...]
-    impacts: tuple[Impact, ...] = field(default_factory=tuple)
+    context: str
+    owned: tuple[str, ...]
+    impact: tuple[str, ...]
+    technologies: tuple[str, ...]
+    systems: tuple[str, ...] = field(default_factory=tuple)  # project ids
     progression: tuple[str, ...] = field(default_factory=tuple)
+    current: bool = False
 
 
 EXPERIENCE: tuple[Role, ...] = (
@@ -53,229 +34,75 @@ EXPERIENCE: tuple[Role, ...] = (
         title="Lead Engineer",
         company="Sapiens Management & Technologies",
         period="Nov 2025 — Present",
-        start="2025-11",
-        end="present",
         location="Belo Horizonte, Brazil",
-        domain="Data consultancy · cloud data platforms",
-        mission=(
-            "Lead data consultancy engagements and own delivery end to end, from the "
-            "business requirement through to a platform running in production."
+        context="Data consultancy on cloud platforms: AWS, dbt, Snowflake and Kubernetes.",
+        owned=(
+            "Lead client engagements from the business requirement through to a platform "
+            "running in production.",
+            "Run the engineering side of each engagement, including the MLOps and "
+            "automation work.",
         ),
-        current=True,
-        response=(
-            "Sapiens Management & Technologies — Lead Engineer (Nov 2025 — Present)",
-            "Leads data consultancy engagements on cloud platforms, owns delivery end "
-            "to end and drives ML/MLOps initiatives.",
+        impact=(
+            "Engagements end in a working platform, with the ML and automation owned "
+            "in-house rather than handed off.",
         ),
-        responsibilities=(
-            "Lead data consultancy engagements across cloud platforms (AWS, dbt, "
-            "Snowflake, Kubernetes), delivering data and analytics solutions for clients.",
-            "Drive ML/MLOps initiatives and automation to improve delivery and reliability "
-            "of data products.",
-            "Own end-to-end delivery and keep stakeholders aligned while the work moves "
-            "from requirement to running system.",
-        ),
-        systems=(),
         technologies=("aws", "dbt", "snowflake", "kubernetes", "python", "mlops", "ci_cd"),
-        flow=(
-            FlowStage(
-                key="problem",
-                label="ENGAGEMENT",
-                detail=(
-                    "A client needs a data platform or an analytics capability, and it "
-                    "has to run in production."
-                ),
-            ),
-            FlowStage(
-                key="platform",
-                label="PLATFORM",
-                detail="Cloud data platform built on AWS with dbt and Snowflake as the "
-                "transformation and warehouse layer.",
-            ),
-            FlowStage(
-                key="compute",
-                label="RUNTIME",
-                detail="Containerised workloads on Kubernetes, so environments stay "
-                "reproducible from development to delivery.",
-            ),
-            FlowStage(
-                key="ml",
-                label="ML / MLOps",
-                detail="MLOps initiatives and automation that improve reliability of the "
-                "data products after go-live.",
-            ),
-            FlowStage(
-                key="outcome",
-                label="DELIVERY",
-                detail="End-to-end ownership, from the first requirement to the "
-                "running platform, with stakeholders kept in the loop.",
-            ),
-        ),
-        impacts=(),
+        current=True,
     ),
     Role(
         id="kraken",
         title="Analytics Engineer / Data Consultant",
         company="Kraken",
         period="Nov 2025 — Present",
-        start="2025-11",
-        end="present",
         location="Brazil",
-        domain="Digital assets · analytics engineering",
-        mission=(
-            "Keep analytics trustworthy at a digital-asset business: data people can act "
-            "on, recurring reporting that runs itself, and quality that holds up when "
-            "another area takes the work over."
+        context="Digital-asset business: analytics and reporting for partner areas.",
+        owned=(
+            "Build and maintain the data and analytics solutions the business makes "
+            "decisions with.",
+            "Automate recurring reports and operational processes.",
+            "Raise data quality across analytics workflows, working with partner areas "
+            "on requirements.",
         ),
-        current=True,
-        response=(
-            "Kraken — Analytics Engineer / Data Consultant (Nov 2025 — Present)",
-            "Builds and maintains data and analytics solutions, automates recurring "
-            "reporting and improves data reliability across analytics workflows.",
+        impact=(
+            "Recurring reporting runs without a manual rebuild every cycle.",
         ),
-        responsibilities=(
-            "Develop and maintain data and analytics solutions, supporting business "
-            "decisions with reliable and accessible data.",
-            "Automate recurring reports and operational processes, reducing manual effort "
-            "and improving delivery reliability.",
-            "Improve data reliability and quality across analytics workflows, collaborating "
-            "with partner areas to translate requirements into deliverables.",
-        ),
-        systems=("production_analytics",),
         technologies=("sql", "python", "data_modeling", "data_quality", "automation"),
-        flow=(
-            FlowStage(
-                key="problem",
-                label="REQUIREMENT",
-                detail="Business areas need numbers they can act on, and they need them "
-                "without a manual rebuild every cycle.",
-            ),
-            FlowStage(
-                key="model",
-                label="DATA MODEL",
-                detail="Data is modeled once and reused, so the same question does "
-                "not have to be solved again from scratch.",
-            ),
-            FlowStage(
-                key="automation",
-                label="AUTOMATION",
-                detail="Recurring reports and operational processes automated to cut "
-                "manual effort.",
-            ),
-            FlowStage(
-                key="quality",
-                label="DATA QUALITY",
-                detail="Reliability and quality work across analytics workflows, "
-                "coordinated with partner areas.",
-            ),
-            FlowStage(
-                key="outcome",
-                label="DECISIONS",
-                detail="Requirements turn into deliverables that business decisions can "
-                "depend on.",
-            ),
-        ),
-        impacts=(),
+        systems=("analytics_platform",),
+        current=True,
     ),
     Role(
         id="mercantil",
         title="Data Scientist / Data Analytics",
         company="Banco Mercantil",
         period="Nov 2019 — Nov 2025",
-        start="2019-11",
-        end="2025-11",
         location="Belo Horizonte, Brazil",
-        domain="Banking · fraud prevention",
-        mission=(
-            "Move fraud prevention from manual review to monitored, automated detection, "
-            "and keep it running in production."
+        context="Fraud prevention inside a bank: pipelines, predictive models and monitoring.",
+        owned=(
+            "Progressed from intern to fraud analyst to Data Scientist over six years.",
+            "Built and maintained the pipelines and models behind transactional fraud "
+            "detection.",
+            "Managed tables, views and stored procedures in Snowflake, and automated the "
+            "departmental processes around them.",
+            "Applied AI/MLOps practices to production fraud workflows.",
         ),
-        current=False,
-        response=(
-            "Banco Mercantil — Data Scientist / Data Analytics (Nov 2019 — Nov 2025)",
-            "Six years inside fraud prevention at the bank: pipelines, predictive "
-            "models, anomaly monitoring and automated processes.",
+        impact=(
+            "~80% of recurring fraud-prevention processes automated.",
+            "30%+ faster case resolution once the pipelines and models reached production.",
         ),
-        responsibilities=(
-            "Progressed from intern and fraud analyst to Data Scientist over six years "
-            "within the fraud-prevention organization.",
-            "Automated ~80% of recurring processes and delivered an end-to-end "
-            "fraud-prevention solution.",
-            "Built and maintained pipelines and models with ML, Docker and Kubernetes, "
-            "which cut case resolution time by 30%+.",
-            "Monitored transactional activity with anomaly detection, and built "
-            "dashboards/KPIs for fraud analytics.",
-            "Applied AI/MLOps practices to production fraud-detection workflows.",
-        ),
-        systems=("fraud_monitoring", "snowflake_governance", "ai_agents_mlops"),
         technologies=(
             "python",
             "sql",
             "machine_learning",
-            "fraud_analytics",
+            "anomaly_detection",
             "mlops",
             "docker",
             "kubernetes",
             "power_bi",
-            "anomaly_detection",
             "snowflake",
             "dbt",
+            "fraud_analytics",
         ),
-        flow=(
-            FlowStage(
-                key="problem",
-                label="PROBLEM",
-                detail="Fraud review depended on recurring manual work over transactional "
-                "data, which capped how fast cases could move.",
-            ),
-            FlowStage(
-                key="signals",
-                label="SIGNALS",
-                detail="Transactional activity monitored with statistical anomaly "
-                "detection to surface what manual sampling missed.",
-            ),
-            FlowStage(
-                key="models",
-                label="MODELS",
-                detail="Advanced algorithms and predictive models for transactional fraud "
-                "prevention.",
-            ),
-            FlowStage(
-                key="pipelines",
-                label="PIPELINES",
-                detail="Pipelines and models built and maintained with ML, Docker and "
-                "Kubernetes.",
-            ),
-            FlowStage(
-                key="automation",
-                label="AUTOMATION",
-                detail="~80% of recurring processes automated, from review steps to "
-                "reporting.",
-            ),
-            FlowStage(
-                key="visibility",
-                label="VISIBILITY",
-                detail="Institutional transaction-monitoring, KPI and Power BI dashboards "
-                "for fraud analytics.",
-            ),
-            FlowStage(
-                key="outcome",
-                label="OUTCOME",
-                detail="Case resolution accelerated by 30%+ and an end-to-end "
-                "fraud-prevention solution delivered.",
-            ),
-        ),
-        impacts=(
-            Impact(
-                label="AUTOMATION",
-                detail="~80% of recurring processes automated inside fraud prevention.",
-            ),
-            Impact(
-                label="RESOLUTION",
-                detail="30%+ faster case resolution after pipelines and models went to "
-                "production.",
-            ),
-        ),
+        systems=("fraud_monitoring", "ai_agents_mlops"),
         progression=("Intern", "Fraud Analyst", "Data Scientist"),
     ),
     Role(
@@ -283,61 +110,21 @@ EXPERIENCE: tuple[Role, ...] = (
         title="Founder & Lead Engineer",
         company="Corporate Gestão Empresarial",
         period="Aug 2018 — Present",
-        start="2018-08",
-        end="present",
         location="Greater Belo Horizonte",
-        domain="Technical strategy · applied AI and automation",
-        mission=(
-            "Founder-side engineering: turn a commercial need into a technical roadmap "
-            "and ship it with data and automation."
+        context="Technical strategy for companies: AI, automation and data applied to "
+        "business processes.",
+        owned=(
+            "Run the consulting work end to end, from the commercial conversation to the "
+            "delivered system.",
+            "Turn a business need into a technical roadmap, then own the delivery.",
         ),
-        current=True,
-        response=(
-            "Corporate Gestão Empresarial — Founder & Lead Engineer (Aug 2018 — Present)",
-            "Technical strategic consulting for companies, applying AI, automation and "
-            "data to business processes.",
+        impact=(
+            "Business processes improved, with decisions supported by the data coming out "
+            "of them.",
         ),
-        responsibilities=(
-            "Founder and lead engineer providing technical strategic consulting for "
-            "companies.",
-            "Apply AI, automation, and data to improve business processes and support "
-            "decision-making.",
-            "Bridge the commercial side and engineering, so a business need turns into a "
-            "roadmap both sides can follow.",
-        ),
-        systems=(),
         technologies=("python", "automation", "ai_workflows", "local_llm", "data_quality"),
-        flow=(
-            FlowStage(
-                key="problem",
-                label="BUSINESS",
-                detail="A company has a commercial problem that needs a technical route "
-                "out of it.",
-            ),
-            FlowStage(
-                key="roadmap",
-                label="ROADMAP",
-                detail="A business need turned into a roadmap and scope that "
-                "commercial stakeholders can follow.",
-            ),
-            FlowStage(
-                key="build",
-                label="BUILD",
-                detail="AI, automation and data applied directly to the business process.",
-            ),
-            FlowStage(
-                key="outcome",
-                label="DECISIONS",
-                detail="Processes improved and decision-making supported with the "
-                "resulting data.",
-            ),
-        ),
-        impacts=(),
+        current=True,
     ),
 )
 
 ROLES_BY_ID: dict[str, Role] = {role.id: role for role in EXPERIENCE}
-
-# Employment chronology as displayed in the experience timeline.
-TIMELINE_START = 2018
-TIMELINE_END = 2026

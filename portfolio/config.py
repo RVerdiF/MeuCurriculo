@@ -12,15 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STYLES_DIR = BASE_DIR / "portfolio" / "styles"
 ISLANDS_DIR = BASE_DIR / "portfolio" / "islands"
 
-# Sections rendered as anchors in the single-page layout. Navigation, the
-# command palette and the terminal all read this list, so it stays consistent.
+# Sections rendered as anchors in the single-page layout. Navigation and the
+# terminal both read this list, so it stays consistent.
 SECTIONS: tuple[tuple[str, str], ...] = (
     ("home", "Home"),
     ("metrics", "Metrics"),
-    ("terminal", "Terminal"),
+    ("terminal", "Console"),
     ("experience", "Experience"),
     ("projects", "Projects"),
-    ("lab", "Lab"),
+    ("stack", "Stack"),
     ("contact", "Contact"),
 )
 
@@ -28,15 +28,24 @@ NAV_SECTIONS: tuple[tuple[str, str], ...] = (
     ("home", "Home"),
     ("experience", "Experience"),
     ("projects", "Projects"),
-    ("lab", "Lab"),
+    ("stack", "Stack"),
     ("contact", "Contact"),
 )
 
 
-@lru_cache(maxsize=16)
+@lru_cache(maxsize=32)
+def _read_cached(path_str: str, mtime: float) -> str:
+    """Read a text asset, keyed by modification time."""
+    return Path(path_str).read_text(encoding="utf-8")
+
+
 def read_text(path: Path) -> str:
-    """Read a text asset once per process."""
-    return path.read_text(encoding="utf-8")
+    """Read a text asset, cached until the file changes.
+
+    The mtime is part of the cache key, so editing the stylesheet or an island
+    template shows up on the next render instead of waiting for a restart.
+    """
+    return _read_cached(str(path), path.stat().st_mtime)
 
 
 def stylesheet() -> str:

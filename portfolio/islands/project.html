@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project architecture</title>
+<style>
+/*__STYLES__*/
+html, body { margin: 0; background: transparent; color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .arch-flow .line { animation: none; } }
+</style>
+</head>
+<body>
+<div class="proj">
+  <p class="proj-tagline" id="tagline"></p>
+
+  <div class="proj-block">
+    <div class="proj-label">problem</div>
+    <p class="proj-text" id="problem"></p>
+  </div>
+
+  <div class="proj-block">
+    <div class="proj-label">what I built</div>
+    <ul class="proj-list" id="built"></ul>
+  </div>
+
+  <div class="proj-block">
+    <div class="proj-label">architecture</div>
+    <div class="arch">
+      <div class="arch-track" id="arch-track"></div>
+      <div class="arch-detail" id="arch-detail" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="proj-block">
+    <div class="proj-label">key decisions</div>
+    <ul class="proj-list" id="decisions"></ul>
+  </div>
+
+  <div class="proj-block proj-block--split">
+    <div>
+      <div class="proj-label">stack</div>
+      <div class="chips" id="stack"></div>
+    </div>
+    <div>
+      <div class="proj-label">impact</div>
+      <ul class="proj-list proj-list--impact" id="impact"></ul>
+    </div>
+  </div>
+
+  <div class="proj-links" id="links"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const DATA = /*__PAYLOAD__*/;
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined && text !== null) node.textContent = String(text);
+    return node;
+  }
+
+  function fillList(id, items, className) {
+    const list = document.getElementById(id);
+    items.forEach(function (item) {
+      list.appendChild(el("li", className || null, item));
+    });
+  }
+
+  document.getElementById("tagline").textContent = DATA.tagline;
+  document.getElementById("problem").textContent = DATA.problem;
+  fillList("built", DATA.built);
+  fillList("decisions", DATA.decisions);
+  fillList("impact", DATA.impact);
+
+  DATA.stack.forEach(function (name) {
+    document.getElementById("stack").appendChild(el("span", "chip", name));
+  });
+
+  /* --- links ------------------------------------------------------------- */
+
+  const links = document.getElementById("links");
+  if (DATA.repo) {
+    const repo = el("a", "proj-link", "repository ↗");
+    repo.href = DATA.repo;
+    repo.target = "_blank";
+    repo.rel = "noopener noreferrer";
+    links.appendChild(repo);
+  }
+  if (DATA.live) {
+    const live = el("a", "proj-link", "live demo ↗");
+    live.href = DATA.live;
+    live.target = "_blank";
+    live.rel = "noopener noreferrer";
+    links.appendChild(live);
+  }
+  if (!DATA.repo && !DATA.live) {
+    links.appendChild(el("span", "dim", "confidential work · no public link"));
+  }
+  if (DATA.status) links.appendChild(el("span", "dim proj-status", DATA.status));
+
+  /* --- architecture map -------------------------------------------------- */
+
+  const track = document.getElementById("arch-track");
+  const detail = document.getElementById("arch-detail");
+  const buttons = {};
+
+  const mainStages = DATA.architecture.filter(function (stage) { return !stage.branch; });
+  const branchStages = DATA.architecture.filter(function (stage) { return stage.branch; });
+
+  function nodeButton(stage) {
+    const button = el("button", "arch-node", stage.label);
+    button.type = "button";
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", function () { select(stage.id); });
+    buttons[stage.id] = button;
+    return button;
+  }
+
+  if (mainStages.length) {
+    const lane = el("div", "arch-lane");
+    const row = el("div", "arch-row");
+    mainStages.forEach(function (stage, index) {
+      if (index) row.appendChild(el("span", "arch-arrow", "→"));
+      row.appendChild(nodeButton(stage));
+    });
+    lane.appendChild(row);
+    track.appendChild(lane);
+  }
+
+  if (branchStages.length) {
+    const branch = el("div", "arch-branch");
+    branch.appendChild(el("span", "drop", "↓"));
+    const row = el("div", "arch-row");
+    branchStages.forEach(function (stage) { row.appendChild(nodeButton(stage)); });
+    branch.appendChild(row);
+    track.appendChild(branch);
+  }
+
+  function detailRow(key, value) {
+    const row = el("div", "arch-detail-row");
+    row.appendChild(el("div", "k", key));
+    const v = el("div", "v");
+    if (value instanceof Node) v.appendChild(value);
+    else v.textContent = value;
+    row.appendChild(v);
+    detail.appendChild(row);
+  }
+
+  function select(stageId) {
+    const stage = DATA.architecture.find(function (candidate) {
+      return candidate.id === stageId;
+    });
+    if (!stage) return;
+    Object.keys(buttons).forEach(function (key) {
+      buttons[key].setAttribute("aria-pressed", key === stageId ? "true" : "false");
+    });
+
+    detail.textContent = "";
+    const head = el("div", "arch-detail-head");
+    head.appendChild(el("div", "arch-detail-title", stage.label));
+    head.appendChild(el("span", "branch-tag", stage.kind));
+    detail.appendChild(head);
+
+    const summary = el("div", "v", stage.detail);
+    summary.style.color = "var(--text-muted)";
+    detail.appendChild(summary);
+
+    if (stage.notes.length) {
+      const wrap = el("div", "chips");
+      stage.notes.forEach(function (note) { wrap.appendChild(el("span", "chip", note)); });
+      detailRow("NOTES", wrap);
+    }
+    if (stage.tech.length) {
+      const wrap = el("div", "chips");
+      stage.tech.forEach(function (tech) { wrap.appendChild(el("span", "chip", tech)); });
+      detailRow("TECHNOLOGIES", wrap);
+    }
+  }
+
+  if (DATA.architecture.length) {
+    const first = mainStages[1] || mainStages[0] || DATA.architecture[0];
+    select(first.id);
+  }
+})();
+</script>
+</body>
+</html>

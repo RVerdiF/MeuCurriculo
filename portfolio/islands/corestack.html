@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Technology map</title>
+<title>Core stack</title>
 <style>
 /*__STYLES__*/
 html, body { margin: 0; background: transparent; color: var(--text); }
@@ -34,29 +34,15 @@ html, body { margin: 0; background: transparent; color: var(--text); }
     return node;
   }
 
-  function parentDocument() {
-    try {
-      const doc = window.parent && window.parent.document;
-      if (doc && doc.getElementById("home")) return doc;
-    } catch (error) { return null; }
-    return null;
-  }
-
-  function goToSection(id) {
-    const doc = parentDocument();
-    const target = doc && doc.getElementById(id);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  DATA.layers.forEach(function (layer) {
+  DATA.groups.forEach(function (group) {
     const layerEl = el("div", "layer");
     const labelWrap = el("div", "layer-label");
-    labelWrap.appendChild(el("div", null, layer.label));
-    labelWrap.appendChild(el("span", "layer-purpose", layer.purpose));
+    labelWrap.appendChild(el("div", null, group.label));
+    labelWrap.appendChild(el("span", "layer-purpose", group.purpose));
     layerEl.appendChild(labelWrap);
 
     const techs = el("div", "layer-techs");
-    layer.tech.forEach(function (tech) {
+    group.tech.forEach(function (tech) {
       const button = el("button", "tech-btn", tech.name);
       button.type = "button";
       button.setAttribute("aria-pressed", "false");
@@ -69,6 +55,12 @@ html, body { margin: 0; background: transparent; color: var(--text); }
     layersEl.appendChild(layerEl);
   });
 
+  function section(title, className) {
+    const wrap = el("div", className || "tech-section");
+    wrap.appendChild(el("div", "label", title));
+    return wrap;
+  }
+
   function select(techId) {
     const tech = DATA.tech.find(function (candidate) { return candidate.id === techId; });
     if (!tech) return;
@@ -78,13 +70,10 @@ html, body { margin: 0; background: transparent; color: var(--text); }
 
     detailEl.textContent = "";
     detailEl.appendChild(el("div", "tech-detail-name", tech.name));
-    detailEl.appendChild(el("div", "label", tech.layerLabel));
-    const what = el("div", "muted", tech.what);
-    what.style.fontSize = "var(--text-sm)";
-    detailEl.appendChild(what);
+    detailEl.appendChild(el("div", "label", tech.group));
+    detailEl.appendChild(el("div", "muted tech-what", tech.what));
 
-    const wrap = el("div", "evidence");
-    wrap.appendChild(el("div", "label", "used at"));
+    const used = section("used in");
     const list = el("ul", "evidence");
     tech.evidence.forEach(function (item) {
       const li = el("li");
@@ -92,26 +81,11 @@ html, body { margin: 0; background: transparent; color: var(--text); }
       li.appendChild(el("span", "what", item.detail));
       list.appendChild(li);
     });
-    wrap.appendChild(list);
-    detailEl.appendChild(wrap);
-
-    const related = (tech.related || []).filter(Boolean);
-    if (related.length) {
-      const chips = el("div", "chips");
-      related.forEach(function (item) {
-        const button = el("button", "arch-link", item.label);
-        button.type = "button";
-        button.addEventListener("click", function () { goToSection(item.section); });
-        chips.appendChild(button);
-      });
-      detailEl.appendChild(chips);
-    }
+    used.appendChild(list);
+    detailEl.appendChild(used);
   }
 
   if (DATA.tech.length) select(DATA.tech[0].id);
-
-  /* Cross-island hook, used by the command palette. */
-  window.rafaelPortfolio = { selectTech: select };
 })();
 </script>
 </body>

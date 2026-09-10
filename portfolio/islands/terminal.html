@@ -12,11 +12,11 @@ html, body {
   color: var(--text);
   font-family: var(--font-mono);
 }
-.term-body { max-height: 25rem; }
+.term-body { max-height: 22rem; }
 .term-input-row .ps1 { color: var(--accent); white-space: nowrap; }
 .term-input-row .ps1 .path { color: var(--text-dim); }
 .term-hint { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-dim); }
-@media (max-width: 640px) { .term-body { max-height: 20rem; } }
+@media (max-width: 640px) { .term-body { max-height: 18rem; } }
 </style>
 </head>
 <body>
@@ -43,9 +43,8 @@ html, body {
     <button type="button" class="chip-btn" data-cmd="experience">experience</button>
     <button type="button" class="chip-btn" data-cmd="projects">projects</button>
     <button type="button" class="chip-btn" data-cmd="stack">stack</button>
-    <button type="button" class="chip-btn" data-cmd="impact">impact</button>
+    <button type="button" class="chip-btn" data-cmd="grep dbt">grep dbt</button>
     <button type="button" class="chip-btn" data-cmd="contact">contact</button>
-    <button type="button" class="chip-btn" data-cmd="ls">ls</button>
     <button type="button" class="chip-btn" data-cmd="clear">clear</button>
   </div>
 
@@ -87,9 +86,7 @@ html, body {
     return node;
   }
 
-  function scrollDown() {
-    body.scrollTop = body.scrollHeight;
-  }
+  function scrollDown() { body.scrollTop = body.scrollHeight; }
 
   function addEntry(command) {
     const wrap = el("div", "term-entry");
@@ -116,15 +113,25 @@ html, body {
     return parent;
   }
 
-  function keyValueRows(parent, rows) {
+  function rows(parent, pairs) {
     const block = el("div", "term-block");
-    rows.forEach(function (row) {
-      const r = el("div", "term-row");
-      r.appendChild(el("span", "k", row[0]));
-      r.appendChild(el("span", "v", row[1]));
-      block.appendChild(r);
+    pairs.forEach(function (pair) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", pair[0]));
+      row.appendChild(el("span", "v", pair[1]));
+      block.appendChild(row);
     });
     parent.appendChild(block);
+    return parent;
+  }
+
+  function bullets(parent, items, className) {
+    items.forEach(function (item) {
+      const row = el("div", "term-row");
+      row.appendChild(el("span", "k", "·"));
+      row.appendChild(el("span", className || "v", item));
+      parent.appendChild(row);
+    });
     return parent;
   }
 
@@ -136,20 +143,13 @@ html, body {
     return parent;
   }
 
-  function note(parent, text, className) {
-    parent.appendChild(el("div", className || null, text));
-    return parent;
-  }
-
   /* ---------- Navigation into the parent document ---------- */
 
   function parentDocument() {
     try {
       const doc = window.parent && window.parent.document;
       if (doc && doc.getElementById("home")) return doc;
-    } catch (error) {
-      return null;
-    }
+    } catch (error) { return null; }
     return null;
   }
 
@@ -163,53 +163,26 @@ html, body {
     return false;
   }
 
-  function clickParentDownload() {
-    const doc = parentDocument();
-    if (!doc) return false;
-    const candidates = doc.querySelectorAll("button, a");
-    for (let i = 0; i < candidates.length; i += 1) {
-      const node = candidates[i];
-      const text = (node.textContent || "").toLowerCase();
-      if (text.indexOf("résumé") !== -1 || text.indexOf("resume") !== -1) {
-        node.click();
-        return true;
-      }
-    }
-    return false;
-  }
+  function openExternal(url) { window.open(url, "_blank", "noopener,noreferrer"); }
 
-  function openExternal(url) {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
+  /* A mailto: must never be assigned to window.location from inside the island:
+     that navigates the frame and destroys the terminal. window.open keeps the
+     island alive. */
+  function openMail(href) { openExternal(href); }
 
-  /* A mailto: must never be assigned to window.location here: this code runs
-     inside the island frame, so assigning it would navigate (and destroy) the
-     frame. window.open keeps the island — and everything it drives — alive. */
-  function openMail(href) {
-    openExternal(href);
-  }
-
-  /* ---------- Lookups ---------- */
-
-  function findRole(idOrSlug) {
-    const needle = String(idOrSlug || "").toLowerCase();
+  function findRole(needle) {
+    const value = String(needle || "").toLowerCase();
     return DATA.roles.find(function (role) {
-      return role.id === needle || role.company.toLowerCase().indexOf(needle) !== -1 ||
-             role.title.toLowerCase().indexOf(needle) !== -1;
+      return role.id === value ||
+             role.company.toLowerCase().indexOf(value) !== -1 ||
+             role.title.toLowerCase().indexOf(value) !== -1;
     });
   }
 
-  function findProject(idOrSlug) {
-    const needle = String(idOrSlug || "").toLowerCase();
+  function findProject(needle) {
+    const value = String(needle || "").toLowerCase();
     return DATA.projects.find(function (project) {
-      return project.id === needle || project.name.toLowerCase().indexOf(needle) !== -1;
-    });
-  }
-
-  function findTech(idOrName) {
-    const needle = String(idOrName || "").toLowerCase();
-    return DATA.tech.find(function (tech) {
-      return tech.id === needle || tech.name.toLowerCase() === needle;
+      return project.id === value || project.name.toLowerCase().indexOf(value) !== -1;
     });
   }
 
@@ -217,7 +190,7 @@ html, body {
     return DATA.profile.links.find(function (item) { return item.id === id; });
   }
 
-  /* ---------- Commands ---------- */
+  /* ---------- Commands (fixed set, nothing here executes input) ---------- */
 
   const COMMANDS = {};
 
@@ -225,18 +198,62 @@ html, body {
     COMMANDS[name] = { name: name, summary: summary, run: run };
   }
 
+  function renderRole(out, role) {
+    line(out, role.title + " at " + role.company, "strong");
+    line(out, role.period + " · " + role.location, "term-hint");
+    line(out, role.context);
+    line(out, "");
+    line(out, "what I owned", "term-hint");
+    bullets(out, role.owned);
+    line(out, "");
+    line(out, "impact", "term-hint");
+    bullets(out, role.impact, "acc");
+    if (role.progression.length) {
+      line(out, "");
+      line(out, "progression: " + role.progression.join(" → "), "term-hint");
+    }
+    if (role.tech.length) line(out, "stack: " + role.tech.join(" · "), "term-hint");
+    if (role.systems.length) {
+      line(out, "systems: " + role.systems.map(function (s) { return s.name; }).join(" · "),
+        "term-hint");
+    }
+  }
+
+  function renderProject(out, project) {
+    line(out, project.name + " (" + project.kind + ")", "strong");
+    line(out, project.domain + " · " + project.tagline, "term-hint");
+    line(out, "");
+    line(out, "problem", "term-hint");
+    line(out, project.problem);
+    line(out, "");
+    line(out, "what I built", "term-hint");
+    bullets(out, project.built);
+    line(out, "");
+    line(out, "key decisions", "term-hint");
+    bullets(out, project.decisions);
+    line(out, "");
+    line(out, "impact", "term-hint");
+    bullets(out, project.impact, "acc");
+    line(out, "");
+    line(out, "stack: " + project.stack.join(" · "), "term-hint");
+    if (project.repo || project.live) {
+      line(out, "links: " + (project.repo ? "repo " : "") + (project.live ? "live" : "") +
+        "  (use `open " + project.id + "`)", "term-hint");
+    }
+  }
+
   defineCommand("help", "this reference", function (out) {
     line(out, "Available commands", "strong");
-    const rowsBlock = el("div", "term-block");
+    const block = el("div", "term-block");
     COMMAND_ORDER.forEach(function (name) {
       const row = el("div", "term-row");
       row.appendChild(el("span", "k", name));
       row.appendChild(el("span", "v", COMMANDS[name].summary));
-      rowsBlock.appendChild(row);
+      block.appendChild(row);
     });
-    out.appendChild(rowsBlock);
-    note(out, "", null);
-    line(out, "Shortcuts: ↑/↓ history · Tab complete · Esc clear · suggestions under the prompt.", "term-hint");
+    out.appendChild(block);
+    line(out, "");
+    line(out, "Shortcuts: ↑/↓ history · Tab complete · Esc clear.", "term-hint");
   });
 
   defineCommand("whoami", "identity and current focus", function (out) {
@@ -245,7 +262,7 @@ html, body {
     line(out, "");
     line(out, DATA.profile.summary);
     line(out, "");
-    keyValueRows(out, [
+    rows(out, [
       ["status", DATA.profile.status],
       ["location", DATA.profile.location],
       ["availability", DATA.profile.availability],
@@ -262,55 +279,15 @@ html, body {
       jumpButton(out, "experience", "open experience section");
       return;
     }
-    const rows = el("div", "term-block");
-    DATA.roles.forEach(function (role) {
-      const row = el("div", "term-row");
-      row.appendChild(el("span", "k", role.period));
-      row.appendChild(el("span", "v", role.title + " · " + role.company + (role.current ? "  [current]" : "")));
-      rows.appendChild(row);
-    });
-    out.appendChild(rows);
+    rows(out, DATA.roles.map(function (role) {
+      return [role.period, role.title + " · " + role.company + (role.current ? "  [current]" : "")];
+    }));
     line(out, "");
-    line(out, "detail: `experience <company>`, e.g. `experience mercantil`", "term-hint");
+    line(out, "detail: `experience <company>`, e.g. `experience kraken`", "term-hint");
     jumpButton(out, "experience", "open experience section");
   });
 
-  function renderRole(out, role) {
-    line(out, role.title + " — " + role.company, "strong");
-    line(out, role.period + " · " + role.location);
-    line(out, role.domain, "term-hint");
-    line(out, "");
-    line(out, role.mission);
-    if (role.progression.length) {
-      line(out, "");
-      line(out, "progression: " + role.progression.join(" → "), "acc");
-    }
-    line(out, "");
-    line(out, "what the work involved", "term-hint");
-    const list = el("div", "term-block");
-    role.bullets.forEach(function (bullet) {
-      const row = el("div", "term-row");
-      row.appendChild(el("span", "k", "·"));
-      row.appendChild(el("span", "v", bullet));
-      list.appendChild(row);
-    });
-    out.appendChild(list);
-    if (role.impacts.length) {
-      line(out, "");
-      role.impacts.forEach(function (impact) {
-        line(out, impact.label + " — " + impact.detail, "acc");
-      });
-    }
-    if (role.tech.length) {
-      line(out, "");
-      line(out, "stack: " + role.tech.join(" · "), "term-hint");
-    }
-    if (role.systems.length) {
-      line(out, "systems: " + role.systems.map(function (s) { return s.name; }).join(" · "), "term-hint");
-    }
-  }
-
-  defineCommand("projects", "public and professional builds", function (out, args) {
+  defineCommand("projects", "the selected systems", function (out, args) {
     if (args.length) {
       const project = findProject(args.join(" "));
       if (!project) { line(out, "no such project: " + args.join(" "), "err"); return; }
@@ -318,181 +295,32 @@ html, body {
       jumpButton(out, "projects", "open projects section");
       return;
     }
-    const rows = el("div", "term-block");
-    DATA.projects.forEach(function (project) {
-      const row = el("div", "term-row");
-      row.appendChild(el("span", "k", project.kind === "public" ? "[public]" : "[professional]"));
-      row.appendChild(el("span", "v", project.name + " — " + project.tagline));
-      rows.appendChild(row);
-    });
-    out.appendChild(rows);
+    rows(out, DATA.projects.map(function (project) {
+      return [project.kind === "public" ? "[public]" : "[production]", project.name + " · " + project.tagline];
+    }));
     line(out, "");
     line(out, "detail: `projects paysim` · repos: `open paysim`", "term-hint");
     jumpButton(out, "projects", "open projects section");
   });
 
-  function renderProject(out, project) {
-    line(out, project.name, "strong");
-    line(out, project.domain + " · " + project.kind + " project", "term-hint");
-    line(out, "");
-    line(out, project.summary);
-    line(out, "");
-    line(out, "problem", "term-hint");
-    line(out, project.problem);
-    if (project.decisions.length) {
-      line(out, "");
-      line(out, "technical decisions", "term-hint");
-      project.decisions.forEach(function (decision) { line(out, "· " + decision); });
-    }
-    if (project.outcome.length) {
-      line(out, "");
-      line(out, "outcome", "term-hint");
-      project.outcome.forEach(function (item) { line(out, "· " + item, "acc"); });
-    }
-    line(out, "");
-    line(out, "stack: " + project.stack.join(" · "), "term-hint");
-    if (project.repo || project.live) {
-      const links = [];
-      if (project.repo) links.push("repo");
-      if (project.live) links.push("live");
-      line(out, "links: " + links.join(" · ") + "  (use `open " + project.id + "`)", "term-hint");
-    }
-  }
-
-  defineCommand("stack", "technologies by responsibility", function (out, args) {
+  defineCommand("stack", "fourteen technologies by responsibility", function (out, args) {
     const filter = args.join(" ").toLowerCase();
-    const rows = el("div", "term-block");
+    const block = el("div", "term-block");
     let matched = false;
-    DATA.layers.forEach(function (layer) {
-      const tech = layer.tech.filter(function (name) {
-        return !filter || layer.id.indexOf(filter) !== -1 || layer.label.toLowerCase().indexOf(filter) !== -1;
-      });
-      if (!tech.length) return;
+    DATA.groups.forEach(function (group) {
+      if (filter && group.id.indexOf(filter) === -1 &&
+          group.label.toLowerCase().indexOf(filter) === -1) return;
       matched = true;
       const row = el("div", "term-row");
-      row.appendChild(el("span", "k", layer.label));
-      row.appendChild(el("span", "v", tech.join(" · ")));
-      rows.appendChild(row);
-    });
-    if (!matched) {
-      line(out, "no layer matched: " + filter, "err");
-      return;
-    }
-    out.appendChild(rows);
-    line(out, "");
-    line(out, "evidence for any technology: `grep dbt` · `cat stack/" + (DATA.tech[0] ? DATA.tech[0].id : "python") + ".md`", "term-hint");
-    jumpButton(out, "lab", "open the lab");
-  });
-
-  defineCommand("impact", "documented metrics", function (out) {
-    line(out, "system metrics (all traceable to the résumé)", "strong");
-    const block = el("div", "term-block");
-    DATA.metrics.forEach(function (metric) {
-      const row = el("div", "term-row");
-      row.appendChild(el("span", "k", metric.label));
-      row.appendChild(el("span", "v", metric.value + " — " + metric.context + "  (" + metric.source + ")"));
+      row.appendChild(el("span", "k", group.label));
+      row.appendChild(el("span", "v", group.tech.join(" · ")));
       block.appendChild(row);
     });
+    if (!matched) { line(out, "no group matched: " + filter, "err"); return; }
     out.appendChild(block);
-    jumpButton(out, "metrics", "open metrics");
-  });
-
-  defineCommand("contact", "how to reach me", function (out) {
-    const rows = el("div", "term-block");
-    DATA.profile.links.forEach(function (item) {
-      const row = el("div", "term-row");
-      row.appendChild(el("span", "k", item.label.toLowerCase()));
-      row.appendChild(el("span", "v", item.value));
-      rows.appendChild(row);
-    });
-    out.appendChild(rows);
     line(out, "");
-    line(out, "`open linkedin` · `open github` · `open email` · `resume`", "term-hint");
-    jumpButton(out, "contact", "open contact section");
-  });
-
-  defineCommand("resume", "download the PDF résumé", function (out) {
-    if (clickParentDownload()) {
-      line(out, "résumé download triggered. Check your downloads.", "acc");
-    } else {
-      line(out, "download button not reachable from here; opening the hero instead.", "warn");
-      goToSection("home");
-    }
-  });
-
-  defineCommand("ls", "list the portfolio as a filesystem", function (out, args) {
-    const scope = (args[0] || "").toLowerCase();
-    if (!scope) {
-      line(out, "profile.md      README of the person");
-      line(out, "experience/     " + DATA.roles.length + " entries");
-      line(out, "projects/       " + DATA.projects.length + " entries");
-      line(out, "stack/          " + DATA.tech.length + " technologies");
-      return;
-    }
-    if (scope === "experience") {
-      DATA.roles.forEach(function (role) { line(out, role.id + ".md", "strong"); });
-      return;
-    }
-    if (scope === "projects") {
-      DATA.projects.forEach(function (project) { line(out, project.id + ".md", "strong"); });
-      return;
-    }
-    if (scope === "stack") {
-      DATA.tech.forEach(function (tech) { line(out, tech.id + ".md", "strong"); });
-      return;
-    }
-    line(out, "ls: no such directory: " + scope, "err");
-  });
-
-  defineCommand("cat", "read a file: profile.md, experience/x.md, projects/x.md, stack/x.md", function (out, args) {
-    const target = (args[0] || "").toLowerCase();
-    if (!target) { line(out, "usage: cat <file>  (try `ls`)", "err"); return; }
-    if (target === "profile.md" || target === "readme.md") {
-      line(out, DATA.profile.name, "strong");
-      line(out, DATA.profile.subtitle);
-      line(out, "");
-      line(out, DATA.profile.summary);
-      line(out, "");
-      keyValueRows(out, [
-        ["location", DATA.profile.location],
-        ["experience", DATA.profile.years + " years"],
-        ["focus", "Data · Analytics · AI"]
-      ]);
-      return;
-    }
-    const parts = target.split("/");
-    const scope = parts[0];
-    const name = (parts[1] || "").replace(".md", "");
-    if (scope === "experience") {
-      const role = findRole(name);
-      if (!role) { line(out, "cat: experience/" + name + ".md: no such file", "err"); return; }
-      renderRole(out, role);
-      return;
-    }
-    if (scope === "projects") {
-      const project = findProject(name);
-      if (!project) { line(out, "cat: projects/" + name + ".md: no such file", "err"); return; }
-      renderProject(out, project);
-      return;
-    }
-    if (scope === "stack") {
-      const tech = findTech(name);
-      if (!tech) { line(out, "cat: stack/" + name + ".md: no such file", "err"); return; }
-      line(out, tech.name + "  [" + tech.layer + "]", "strong");
-      line(out, tech.what);
-      line(out, "");
-      line(out, "used at", "term-hint");
-      const evidence = el("div", "term-block");
-      tech.evidence.forEach(function (item) {
-        const row = el("div", "term-row");
-        row.appendChild(el("span", "k", item.ref));
-        row.appendChild(el("span", "v", item.detail));
-        evidence.appendChild(row);
-      });
-      out.appendChild(evidence);
-      return;
-    }
-    line(out, "cat: " + target + ": no such file or directory", "err");
+    line(out, "evidence for a technology: `grep dbt`", "term-hint");
+    jumpButton(out, "stack", "open the stack");
   });
 
   defineCommand("grep", "search the portfolio data, e.g. `grep dbt`", function (out, args) {
@@ -502,67 +330,80 @@ html, body {
     const hits = [];
 
     function push(source, text, section) {
-      if (String(text).toLowerCase().indexOf(needle) !== -1) hits.push({ source: source, text: text, section: section });
+      if (String(text).toLowerCase().indexOf(needle) !== -1) {
+        hits.push({ source: source, text: text, section: section });
+      }
     }
 
     if (!scope || scope.indexOf("experience") !== -1) {
       DATA.roles.forEach(function (role) {
-        push(role.company, role.title + " — " + role.mission, "experience");
-        role.bullets.forEach(function (bullet) { push(role.company, bullet, "experience"); });
-        role.tech.forEach(function (t) { push(role.company, "stack · " + t, "experience"); });
-        role.impacts.forEach(function (impact) { push(role.company, impact.label + " — " + impact.detail, "experience"); });
+        push(role.company, role.context, "experience");
+        role.owned.forEach(function (item) { push(role.company, item, "experience"); });
+        role.impact.forEach(function (item) { push(role.company, item, "experience"); });
+        role.tech.forEach(function (name) { push(role.company, "stack · " + name, "experience"); });
       });
     }
     if (!scope || scope.indexOf("project") !== -1) {
       DATA.projects.forEach(function (project) {
         push(project.name, project.tagline, "projects");
-        push(project.name, project.summary, "projects");
+        push(project.name, project.problem, "projects");
+        project.built.forEach(function (item) { push(project.name, item, "projects"); });
+        project.decisions.forEach(function (item) { push(project.name, item, "projects"); });
+        project.impact.forEach(function (item) { push(project.name, item, "projects"); });
         push(project.name, "stack · " + project.stack.join(" · "), "projects");
-        project.decisions.forEach(function (d) { push(project.name, d, "projects"); });
-        project.outcome.forEach(function (o) { push(project.name, o, "projects"); });
-        project.problem && push(project.name, project.problem, "projects");
       });
     }
     if (!scope || scope.indexOf("stack") !== -1) {
-      DATA.tech.forEach(function (tech) {
-        push(tech.name, tech.what, "lab");
-        tech.evidence.forEach(function (item) {
-          push(tech.name, item.ref + " — " + item.detail, "lab");
-        });
+      DATA.groups.forEach(function (group) {
+        push(group.label, group.purpose, "stack");
+        push(group.label, "stack · " + group.tech.join(" · "), "stack");
       });
     }
 
     if (!hits.length) {
       line(out, "grep: no matches for '" + args[0] + "'" + (scope ? " in " + scope : ""), "err");
-      line(out, "try: dbt · python · aws · snowflake · fraud · automation · kubernetes", "term-hint");
+      line(out, "try: dbt · python · aws · snowflake · fraud · automation · kubernetes",
+        "term-hint");
       return;
     }
 
     const seen = {};
     let shown = 0;
-    const hitsBlock = el("div", "term-block");
+    const block = el("div", "term-block");
     hits.forEach(function (hit) {
-      const dedupe = hit.source + "|" + hit.text;
-      if (seen[dedupe]) return;
-      seen[dedupe] = true;
-      if (shown >= 14) return;
+      const key = hit.source + "|" + hit.text;
+      if (seen[key]) return;
+      seen[key] = true;
+      if (shown >= 12) return;
       shown += 1;
       const row = el("div", "term-row");
       row.appendChild(el("span", "k", hit.source));
       row.appendChild(el("span", "v", hit.text));
-      hitsBlock.appendChild(row);
+      block.appendChild(row);
     });
-    out.appendChild(hitsBlock);
+    out.appendChild(block);
     line(out, "");
-    line(out, shown + " match(es)" + (shown >= 14 ? " (truncated)" : "") + " for '" + args[0] + "'", "term-hint");
+    line(out, shown + " match(es)" + (hits.length > shown ? " (truncated)" : "") +
+      " for '" + args[0] + "'", "term-hint");
     if (hits[0].section) jumpButton(out, hits[0].section, "open related section");
   });
 
-  defineCommand("open", "open a link: linkedin, github, email, résumé, or a project", function (out, args) {
+  defineCommand("open", "open a link: github, linkedin, email, resume, or a project", function (out, args) {
     const target = (args[0] || "").toLowerCase();
-    if (!target) { line(out, "usage: open <linkedin|github|email|resume|project-id>", "err"); return; }
+    if (!target) { line(out, "usage: open <github|linkedin|email|resume|project-id>", "err"); return; }
     if (target === "resume" || target === "cv" || target === "pdf") {
-      COMMANDS.resume.run(out, []);
+      const doc = parentDocument();
+      const buttons = doc ? doc.querySelectorAll("button, a") : [];
+      for (let i = 0; i < buttons.length; i += 1) {
+        const text = (buttons[i].textContent || "").toLowerCase();
+        if (text.indexOf("résumé") !== -1 || text.indexOf("resume") !== -1) {
+          buttons[i].click();
+          line(out, "résumé download triggered. Check your downloads.", "acc");
+          return;
+        }
+      }
+      line(out, "download button not reachable from here; opening the hero instead.", "warn");
+      goToSection("home");
       return;
     }
     const direct = link(target);
@@ -582,28 +423,27 @@ html, body {
       if (project.repo) urls.push(project.repo);
       if (project.live) urls.push(project.live);
       if (!urls.length) {
-        line(out, project.name + " is a confidential professional system, so it has no public link.", "warn");
+        line(out, project.name + " is confidential work, so it has no public link.", "warn");
         return;
       }
       urls.forEach(openExternal);
       line(out, "opened " + urls.length + " link(s) for " + project.name, "acc");
-      if (project.live) line(out, "note: Streamlit Cloud demos sleep when idle, so the first load may take a moment.", "term-hint");
+      if (project.live) {
+        line(out, "note: Streamlit Cloud demos sleep when idle, so the first load may take a moment.",
+          "term-hint");
+      }
       return;
     }
     line(out, "open: unknown target: " + target, "err");
   });
 
-  defineCommand("go", "jump to a section: go projects", function (out, args) {
-    const target = (args[0] || "").toLowerCase();
-    if (!target) {
-      line(out, "sections: " + DATA.sections.map(function (s) { return s.id; }).join(" · "), "term-hint");
-      return;
-    }
-    if (goToSection(target)) {
-      line(out, "→ " + target, "acc");
-    } else {
-      line(out, "go: unknown section: " + target, "err");
-    }
+  defineCommand("contact", "how to reach me", function (out) {
+    rows(out, DATA.profile.links.map(function (item) {
+      return [item.label.toLowerCase(), item.value];
+    }));
+    line(out, "");
+    line(out, "`open linkedin` · `open github` · `open email` · `open resume`", "term-hint");
+    jumpButton(out, "contact", "open contact section");
   });
 
   defineCommand("clear", "clear the terminal", function (out, args, context) {
@@ -611,21 +451,8 @@ html, body {
     context.silent = true;
   });
 
-  defineCommand("sudo", "do not", function (out, args) {
-    if (args.join(" ").toLowerCase() === "hire-rafael") {
-      line(out, "permission granted.", "acc");
-      line(out, "opening contact information…");
-      const email = link("email");
-      if (email) openMail(email.href);
-      goToSection("contact");
-      return;
-    }
-    line(out, "rafael is not in the sudoers file. This incident has been reported.", "warn");
-  });
-
   const COMMAND_ORDER = [
-    "help", "whoami", "experience", "projects", "stack", "impact", "contact",
-    "resume", "ls", "cat", "grep", "open", "go", "clear"
+    "help", "whoami", "experience", "projects", "stack", "grep", "open", "contact", "clear"
   ];
 
   /* ---------- Dispatch ---------- */
@@ -645,8 +472,8 @@ html, body {
       const suggestion = COMMAND_ORDER.filter(function (candidate) {
         return candidate.indexOf(name) === 0 || name.indexOf(candidate) === 0;
       })[0];
-      if (suggestion) line(out, "did you mean: " + suggestion, "term-hint");
-      else line(out, "type `help` for the command list", "term-hint");
+      line(out, suggestion ? "did you mean: " + suggestion : "type `help` for the command list",
+        "term-hint");
       return;
     }
 
@@ -654,8 +481,7 @@ html, body {
     try {
       const context = { silent: false };
       handler.run(out, args, context);
-      if (name !== "clear") stateText.textContent = "ready";
-      if (context.silent) stateText.textContent = "ready";
+      stateText.textContent = "ready";
     } catch (error) {
       line(out, "internal error: " + error.message, "err");
       stateText.textContent = "ready";
@@ -665,8 +491,7 @@ html, body {
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-    const value = input.value;
-    const trimmed = value.trim();
+    const trimmed = input.value.trim();
     if (!trimmed) return;
     if (history[history.length - 1] !== trimmed) history.push(trimmed);
     historyIndex = history.length;
@@ -703,11 +528,10 @@ html, body {
     }
   });
 
-  /* Clicking anywhere in the terminal body puts the caret where a terminal
-     user expects it. Focus is never stolen on load. */
+  /* Clicking the log puts the caret where a terminal user expects it. Focus is
+     never stolen on load. */
   term.addEventListener("click", function (event) {
-    if (event.target.closest("button")) return;
-    if (event.target.closest("a")) return;
+    if (event.target.closest("button") || event.target.closest("a")) return;
     input.focus();
   });
 
@@ -715,15 +539,13 @@ html, body {
     button.addEventListener("click", function () {
       const command = button.getAttribute("data-cmd");
       if (command === "clear") { body.textContent = ""; return; }
-      input.value = command;
       execute(command);
-      input.value = "";
       input.focus();
     });
   });
 
-  /* Idle cursor: only shown while the input is empty and unfocused, so it
-     reads as a terminal without interfering with real typing. */
+  /* Idle cursor: shown only while the input is empty, so it reads as a terminal
+     without interfering with typing. */
   function updateCursor() {
     if (document.activeElement === input && input.value.length) {
       term.classList.remove("cursor-idle");
@@ -738,25 +560,11 @@ html, body {
 
   /* ---------- Boot ---------- */
   const boot = el("div", "term-out");
-  line(boot, DATA.profile.user + "@" + DATA.profile.host + " — portfolio data systems console", "strong");
-  line(boot, "Commands run against Rafael's structured portfolio data. Fixed command set, no shell access.");
+  line(boot, DATA.profile.user + "@" + DATA.profile.host + " — portfolio data systems console",
+    "strong");
+  line(boot, "Commands read Rafael's structured portfolio data. Fixed command set, typed text is never executed.");
   line(boot, "Type `help`, or click a command under the prompt.", "term-hint");
   body.appendChild(boot);
-
-  /* Cross-island hook: the command palette lives in a sibling frame and drives
-     the terminal through this interface (same-origin srcdoc frames). */
-  window.rafaelPortfolio = {
-    focus: function (command) {
-      if (command) {
-        const value = String(command).trim();
-        if (history[history.length - 1] !== value) history.push(value);
-        historyIndex = history.length;
-        execute(value);
-      }
-      input.focus();
-    },
-    run: execute
-  };
 })();
 </script>
 </body>

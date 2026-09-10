@@ -95,8 +95,8 @@ def island(name: str, data: dict, label: str, note: str = "") -> None:
     """Mount an interactive island with a labelled frame.
 
     ``height="content"`` lets Streamlit measure the frame and grow it as the
-    content grows; srcdoc frames are same-origin, which is what allows the
-    terminal and the command palette to drive the page around them.
+    content grows; srcdoc frames are same-origin, which is what lets an island
+    scroll the page around it (the terminal does).
     """
     note_markup = f'<span class="island-note">{esc(note)}</span>' if note else ""
     st.html(

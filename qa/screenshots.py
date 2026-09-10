@@ -49,24 +49,15 @@ def main() -> None:
             ("03-terminal", "#terminal"),
             ("04-experience", "#experience"),
             ("05-projects", "#projects"),
-            ("06-lab", "#lab"),
+            ("06-stack", "#stack"),
             ("07-contact", "#contact"),
         ):
             shoot(page, out, name, section)
 
-        page.locator(".timeline details.disclosure summary").first.click()
-        page.wait_for_timeout(600)
-        shoot(page, out, "08-experience-open", "#experience")
-
-        page.locator(".proj-grid details.disclosure summary").first.click()
-        page.wait_for_timeout(600)
-        shoot(page, out, "09-project-open", "#projects")
-
         for name, title in (
-            ("10-explorer", "Architecture explorer"),
-            ("11-stackmap", "Technology map"),
-            ("12-console", "Query my experience"),
-            ("13-ask", "Ask the data"),
+            ("08-terminal-output", "Portfolio terminal"),
+            ("09-architecture", "Project architecture"),
+            ("10-corestack", "Core stack"),
         ):
             frame = frame_for(page, title)
             if frame:
@@ -81,28 +72,17 @@ def main() -> None:
             terminal.fill("#term-input", "grep snowflake")
             terminal.press("#term-input", "Enter")
             page.wait_for_timeout(400)
-            terminal.frame_element().screenshot(path=str(out / "14-terminal-output.png"))
-            print("shot 14-terminal-output")
+            terminal.frame_element().screenshot(path=str(out / "11-terminal-grep.png"))
+            print("shot 11-terminal-grep")
 
-        # palette open, over the page
-        page.wait_for_selector("#rafaelos-palette-trigger", timeout=15000)
-        page.locator("#rafaelos-palette-trigger").click()
-        page.wait_for_timeout(500)
-        page.screenshot(path=str(out / "15-palette.png"))
-        print("shot 15-palette")
-        page.keyboard.press("Escape")
-
-        for name, width, height in (("16-mobile", 390, 844), ("17-tablet", 834, 1112)):
+        for name, width, height in (("12-mobile", 390, 844), ("13-tablet", 834, 1112)):
             page.set_viewport_size({"width": width, "height": height})
             page.goto(args.url, wait_until="networkidle")
             page.wait_for_timeout(3000)
             page.screenshot(path=str(out / f"{name}-top.png"))
-            page.evaluate("() => document.querySelector('#terminal').scrollIntoView({block:'start'})")
-            page.wait_for_timeout(600)
-            page.screenshot(path=str(out / f"{name}-terminal.png"))
-            page.evaluate("() => document.querySelector('#lab').scrollIntoView({block:'start'})")
+            page.evaluate("() => document.querySelector('#projects').scrollIntoView({block:'start'})")
             page.wait_for_timeout(800)
-            page.screenshot(path=str(out / f"{name}-lab.png"))
+            page.screenshot(path=str(out / f"{name}-projects.png"))
             print("shot", name)
 
         browser.close()

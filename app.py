@@ -1,9 +1,9 @@
 """RafaelOS — Data Systems Console.
 
-Entry point for the Streamlit app. Renders one continuous page: navigation,
-hero, metrics, terminal, experience, projects, lab and contact. Interactive
-pieces are same-origin islands (see `portfolio/islands`); everything else is
-static HTML driven by `portfolio/data`, so the page has no expensive reruns.
+Entry point for the Streamlit app. One page, seven sections: hero, metrics,
+console, experience, selected systems, core stack, contact. Interactive pieces
+are same-origin islands (see `portfolio/islands`); everything else is static
+HTML driven by `portfolio/data`, so the page has no expensive reruns.
 
 Run locally:
 
@@ -16,11 +16,10 @@ from portfolio.components import (
     contact,
     experience,
     hero,
-    lab,
     metrics,
-    palette,
     projects,
     shell,
+    stack,
     terminal,
 )
 
@@ -38,20 +37,20 @@ def main() -> None:
         "metrics",
         "01 / system metrics",
         "Documented numbers, each with a source",
-        "Six years of production work, summarized by the numbers that can be checked. "
-        "Every figure below comes from the shipped résumé.",
+        "Six years of production work, summarized by the numbers that can be "
+        "checked. Every figure below comes from the shipped résumé.",
     )
     metrics.render()
     shell.section_end()
 
-    # 02 — terminal
+    # 02 — console
     shell.section(
         "terminal",
-        "02 / console",
+        "02 / data systems console",
         "Query this portfolio the way you query a system",
         "The same structured data that renders this page, exposed as a small command "
-        "line. Fixed command set, allowlisted, and nothing is executed on a server. "
-        "Recruiters: the buttons under the prompt do everything the terminal does.",
+        "line. Fixed command set, allowlisted, and nothing runs on a server. The "
+        "buttons under the prompt do everything the terminal does.",
     )
     terminal.render()
     shell.section_end()
@@ -61,41 +60,39 @@ def main() -> None:
         "experience",
         "03 / experience",
         "Career as system history",
-        "Four engagements, ordered by what they built rather than by job title. "
-        "Open any role to see the delivery chain: problem → signals → systems → outcome.",
+        "Four engagements, each answering the same six questions: role, company, "
+        "context, what I owned, impact and stack. The architecture lives in the "
+        "systems below, where it belongs.",
     )
     experience.render_roles()
     experience.render_credentials()
     shell.section_end()
 
-    # 04 — projects
+    # 04 — selected systems
     shell.section(
         "projects",
-        "04 / projects",
-        "Builds and production systems",
-        "Public repositories with documentation, plus the confidential systems that "
-        "shipped inside a business. Every card opens into problem, architecture, "
-        "decisions and outcome.",
+        "04 / selected systems",
+        "Four systems, opened up",
+        "Each one carries the same six blocks: problem, what I built, architecture, key "
+        "decisions, stack and impact. The architecture map is interactive, so you can "
+        "see what each stage actually does.",
     )
-    projects.render_public()
-    projects.render_professional()
+    projects.render_selected()
     shell.section_end()
 
-    # 05 — lab
+    # 05 — core stack
     shell.section(
-        "lab",
-        "05 / lab",
-        "The parts you can play with",
-        "Four interactions built the way I build platforms: an architecture explorer, "
-        "a technology map with evidence, a fixed query console and a deterministic "
-        "question lookup. No LLM API is called anywhere on this page.",
+        "stack",
+        "05 / core stack",
+        "Fourteen technologies, with references",
+        "Grouped by what they are for rather than by percentage. Every technology "
+        "shows where it was used, so the list is evidence instead of a logo wall.",
     )
-    lab.render()
+    stack.render()
     shell.section_end()
 
-    # 06 — contact + palette
+    # 06 — contact
     contact.render()
-    palette.render()
 
 
 main()
